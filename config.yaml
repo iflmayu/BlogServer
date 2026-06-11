@@ -1,0 +1,5 @@
+system:
+  ip: "127.0.0.1"
+  port: 8080
+  gin_mode: debug
+  env: dev
