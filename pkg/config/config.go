@@ -9,6 +9,10 @@ import (
 
 type Config struct {
 	System System `mapstructure:"system"`
+	Log    Log    `mapstructure:"log"`
+	DB     DB     `mapstructure:"db"`
+	DB1    DB     `mapstructure:"db1"`
+	Jwt    Jwt    `mapstructure:"jwt"`
 }
 
 func LoadConfig(configPath string) (c *Config) {
@@ -20,11 +24,10 @@ func LoadConfig(configPath string) (c *Config) {
 	if configPath != "" {
 		v.SetConfigFile(configPath) // 直接配置指定文件
 	} else {
-		v.SetConfigName("config" +
-			"") // 配置文件名（不带扩展名）
-		v.SetConfigType("yaml")      // 明确指定类型
-		v.AddConfigPath("./")        // 第一个搜索路径
-		v.AddConfigPath("./configs") // 第二个搜索路径（备用）
+		v.SetConfigName("config") // 配置文件名（不带扩展名）
+		v.SetConfigType("yaml")   // 明确指定类型
+		v.AddConfigPath("./")     // 第一个搜索路径
+		v.AddConfigPath("../../") // 第二个搜索路径（备用）
 	}
 
 	if err := v.ReadInConfig(); err != nil {

@@ -1,5 +1,29 @@
 system:
   ip: "127.0.0.1"
-  port: 8080
+  port: 8081
   gin_mode: debug
   env: dev
+log:
+  app: blog_server
+  dir: ./logs
+  level: debug   # debug/info/warn/error
+db:
+  username: root
+  password: 123456
+  host: 127.0.0.1
+  port: 3306
+  db_name: blog
+  debug: false
+  source: mysql
+db1:
+  username: root
+  password: 123456
+  host: 127.0.0.1
+  port: 3306
+  db_name: blog
+  debug: false
+  source: mysql
+jwt:
+  expire: 30
+  secret: xxx
+  issuer: iflmayu
