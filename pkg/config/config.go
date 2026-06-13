@@ -11,8 +11,8 @@ type Config struct {
 	System System `mapstructure:"system"`
 	Log    Log    `mapstructure:"log"`
 	DB     DB     `mapstructure:"db"`
-	DB1    DB     `mapstructure:"db1"`
 	Jwt    Jwt    `mapstructure:"jwt"`
+	Redis  Redis  `mapstructure:"redis"`
 }
 
 func LoadConfig(configPath string) (c *Config) {

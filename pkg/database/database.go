@@ -14,6 +14,8 @@ import (
 func InitDB(cfg config.DB) *gorm.DB {
 	var dialector gorm.Dialector
 	switch cfg.Source {
+	case "mysql":
+		dialector = mysql.Open(cfg.DSN())
 	default:
 		dialector = mysql.Open(cfg.DSN())
 	}
@@ -61,8 +63,7 @@ func InitDB(cfg config.DB) *gorm.DB {
 
 	zap.S().Infow("数据库连接成功",
 		"source", cfg.Source,
-		"host", cfg.Host,
-		"port", cfg.Port,
+		"addr", cfg.Addr(),
 		"db_name", cfg.DBName,
 	)
 

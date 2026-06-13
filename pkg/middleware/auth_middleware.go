@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -25,13 +26,20 @@ func AuthMiddleware(jwtService *jwt.Service) gin.HandlerFunc {
 			return
 		}
 
+		if jwtService.IsBlacklisted(parts[1]) {
+			fmt.Println(parts[1])
+			response.FailWithMsg("token 黑名单", c)
+			c.Abort()
+			return
+		}
+
 		claims, err := jwtService.ParseToken(parts[1])
 		if err != nil {
 			response.FailWithMsg("登录已过期或 token 无效", c)
 			c.Abort()
 			return
 		}
-		
+
 		c.Set("claims", claims)
 		c.Next()
 	}

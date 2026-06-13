@@ -1,6 +1,7 @@
 package router
 
 import (
+	"BlogServer/internal/common/response"
 	"BlogServer/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,9 @@ func registerUserRoutes(r *gin.RouterGroup, jwtService *jwt.Service) {
 	auth := r.Group("/user")
 	auth.Use(middleware.AuthMiddleware(jwtService))
 	{
-		auth.GET("/detail", nil)
+		auth.GET("/detail", func(c *gin.Context) {
+			claims, _ := c.Get("claims")
+			response.OkWithData(claims, c)
+		})
 	}
 }

@@ -20,6 +20,10 @@ func (d *DB) DSN() string {
 	}
 }
 
+func (d *DB) Addr() string {
+	return fmt.Sprintf("%s:%d", d.Host, d.Port)
+}
+
 func (d *DB) IsEmpty() bool {
 	return d.Host == "" || d.Port == 0 || d.DBName == ""
 }

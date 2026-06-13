@@ -1,8 +1,8 @@
 system:
-  ip: "127.0.0.1"
+  ip: 127.0.0.1
   port: 8081
   gin_mode: debug
-  env: dev
+  env: "dev"
 log:
   app: blog_server
   dir: ./logs
@@ -15,15 +15,12 @@ db:
   db_name: blog
   debug: false
   source: mysql
-db1:
-  username: root
-  password: 123456
-  host: 127.0.0.1
-  port: 3306
-  db_name: blog
-  debug: false
-  source: mysql
 jwt:
-  expire: 30
-  secret: xxx
+  expire: 24
+  secret: your-generated-base64-string-here
   issuer: iflmayu
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: 1234
+  db: 0

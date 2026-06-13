@@ -16,6 +16,8 @@ func NewRouter(cfg config.System, jwtService *jwt.Service) *gin.Engine {
 
 	// 注册 user 模块路由
 	registerUserRoutes(api, jwtService)
+	//
+	registerUploadRoutes(api, cfg, jwtService)
 
 	return r
 }
