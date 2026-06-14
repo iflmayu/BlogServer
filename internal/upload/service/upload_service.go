@@ -1,68 +1,79 @@
 package service
 
 import (
+	"BlogServer/internal/upload/domain"
+	"BlogServer/internal/upload/repo"
+	"BlogServer/pkg/config"
+	"BlogServer/pkg/storage"
+	"context"
 	"fmt"
-	"io"
 	"mime/multipart"
-	"os"
+	"path"
 	"path/filepath"
+	"slices"
+	"strings"
 	"time"
 )
 
 type UploadService struct {
-	uploadPath string
-	baseURL    string
+	repo    *repo.UploadRepo
+	storage storage.Uploader
+	cfg     config.Upload
 }
 
-func NewUploadService(uploadPath, baseURL string) *UploadService {
+func NewUploadService(repo *repo.UploadRepo, storage storage.Uploader, cfg config.Upload) *UploadService {
 	return &UploadService{
-		uploadPath: uploadPath,
-		baseURL:    baseURL,
+		repo:    repo,
+		storage: storage,
+		cfg:     cfg,
 	}
 }
 
-func (s *UploadService) UploadImage(fileHeader *multipart.FileHeader) (string, error) {
+func (s *UploadService) UploadImage(ctx context.Context, userID uint, fileHeader *multipart.FileHeader) (string, error) {
 	// 校验文件类型
 	ext := filepath.Ext(fileHeader.Filename)
-	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".gif" && ext != ".webp" {
-		return "", fmt.Errorf("仅支持 jpg/png/gif/webp 格式")
+	if !slices.Contains(s.cfg.AllowedTypes, ext) {
+		return "", fmt.Errorf("仅支持 %s 格式", strings.Join(s.cfg.AllowedTypes, " "))
+
 	}
 
-	// 校验文件大小（比如 5MB）
-	if fileHeader.Size > 5*1024*1024 {
-		return "", fmt.Errorf("图片大小不能超过 5MB")
+	// 校验文件大小
+	if fileHeader.Size > int64(s.cfg.MaxSize)*1024*1024 {
+		return "", fmt.Errorf("图片大小不能超过 %dMB", s.cfg.MaxSize)
 	}
-
 	// 打开上传文件
 	src, err := fileHeader.Open()
 	if err != nil {
 		return "", err
 	}
-	defer src.Close()
+	defer func() {
+		_ = src.Close()
+	}()
 
-	// 生成目录：uploads/images/2026/06/
+	// 生成文件名, 相对路径
+	//todo
 	now := time.Now()
-	dir := filepath.Join(s.uploadPath, "images", now.Format("2006"), now.Format("01"))
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return "", err
-	}
+	filename := now.Format("20060102_150405") + "_" + ext
+	relPath := path.Join(s.cfg.UploadDir, now.Format("2006"), now.Format("01"), filename)
 
-	// 生成文件名
-	filename := uuid.New().String() + ext
-	dstPath := filepath.Join(dir, filename)
-
-	// 保存文件
-	dst, err := os.Create(dstPath)
+	// 调用 Storage 层保存（传入 relPath、reader、size）
+	url, err := s.storage.Upload(relPath, src, fileHeader.Size)
 	if err != nil {
 		return "", err
 	}
-	defer dst.Close()
 
-	if _, err := io.Copy(dst, src); err != nil {
+	// 保存上传记录到数据库
+	upload := &domain.Upload{
+		UserID:   userID,
+		Filename: fileHeader.Filename,
+		URL:      url,
+		Path:     relPath,
+		Size:     fileHeader.Size,
+		MimeType: fileHeader.Header.Get("Content-Type"),
+	}
+	if err := s.repo.Create(ctx, upload); err != nil {
 		return "", err
 	}
 
-	// 返回访问 URL
-	relPath := filepath.Join("images", now.Format("2006"), now.Format("01"), filename)
-	return s.baseURL + "/" + relPath, nil
+	return url, nil
 }

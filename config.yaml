@@ -13,7 +13,7 @@ db:
   host: 127.0.0.1
   port: 3306
   db_name: blog
-  debug: false
+  debug: true
   source: mysql
 jwt:
   expire: 24
@@ -24,3 +24,22 @@ redis:
   port: 6379
   password: 1234
   db: 0
+upload:
+  max_size: 5              # MB
+  allowed_types:
+    - .jpg
+    - .jpeg
+    - .png
+    - .gif
+    - .webp
+  upload_dir: images
+storage:
+  type: qiniu      # local 或 qiniu
+  local:
+    root_path: ./uploads
+    base_url: http://127.0.0.1:8081
+  qiniu:
+    access_key: wUlX7B_fyoaSbHwU18yZY76OBrwnQWaqcxZPk48d
+    secret_key: zsLomNgxi8GuKSKeNY0Uv1LDdYnfNzHQLHHPGt5j
+    bucket: iflmayu2
+    domain: http://tgm9arffj.hn-bkt.clouddn.com

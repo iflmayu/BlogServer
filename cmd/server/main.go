@@ -1,7 +1,8 @@
 package main
 
 import (
-	"BlogServer/internal/user/domain"
+	uploadDomain "BlogServer/internal/upload/domain"
+	userDomain "BlogServer/internal/user/domain"
 	"BlogServer/pkg/config"
 	"BlogServer/pkg/database"
 	"BlogServer/pkg/jwt"
@@ -33,7 +34,7 @@ func main() {
 	})
 	fmt.Println(tokenString)
 
-	r := router.NewRouter(cfg.System, jwtService)
+	r := router.NewRouter(db, cfg, jwtService)
 	if err := r.Run(cfg.System.Addr()); err != nil {
 		zap.S().Fatalw("服务器启动失败", "err", err)
 	}
@@ -42,7 +43,8 @@ func main() {
 // 开发阶段自动迁移
 func migrate(db *gorm.DB) {
 	err := db.AutoMigrate(
-		&domain.User{},
+		&userDomain.User{},
+		&uploadDomain.Upload{},
 	)
 	if err != nil {
 		zap.S().Fatalw("数据库迁移失败", "err", err)

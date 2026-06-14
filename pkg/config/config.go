@@ -8,11 +8,13 @@ import (
 )
 
 type Config struct {
-	System System `mapstructure:"system"`
-	Log    Log    `mapstructure:"log"`
-	DB     DB     `mapstructure:"db"`
-	Jwt    Jwt    `mapstructure:"jwt"`
-	Redis  Redis  `mapstructure:"redis"`
+	System  System  `mapstructure:"system"`
+	Log     Log     `mapstructure:"log"`
+	DB      DB      `mapstructure:"db"`
+	Jwt     Jwt     `mapstructure:"jwt"`
+	Redis   Redis   `mapstructure:"redis"`
+	Upload  Upload  `mapstructure:"upload"`
+	Storage Storage `mapstructure:"storage"`
 }
 
 func LoadConfig(configPath string) (c *Config) {

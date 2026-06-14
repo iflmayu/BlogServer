@@ -2,6 +2,7 @@ package handler
 
 import (
 	"BlogServer/internal/common/response"
+	"BlogServer/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,15 +10,18 @@ import (
 func (h *UploadHandler) UploadImage(c *gin.Context) {
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
-		response.FailWithError(err, c)
+		response.FailWithMsg("请选择要上传的文件", c)
 		return
 	}
 
-	//url, err := h.uploadService.UploadImage(fileHeader)
-	//if err != nil {
-	//	response.FailWithMsg(err.Error(), c)
-	//	return
-	//}
+	claims, _ := c.Get("claims")
+	myClaims := claims.(*jwt.MyClaims)
 
-	response.OkWithData(gin.H{"fileHeader": fileHeader}, c)
+	url, err := h.uploadService.UploadImage(c.Request.Context(), myClaims.UserID, fileHeader)
+	if err != nil {
+		response.FailWithMsg(err.Error(), c)
+		return
+	}
+
+	response.OkWithData(gin.H{"url": url}, c)
 }

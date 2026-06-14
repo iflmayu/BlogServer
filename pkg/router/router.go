@@ -5,10 +5,11 @@ import (
 	"BlogServer/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func NewRouter(cfg config.System, jwtService *jwt.Service) *gin.Engine {
-	gin.SetMode(cfg.GinMode)
+func NewRouter(db *gorm.DB, cfg *config.Config, jwtService *jwt.Service) *gin.Engine {
+	gin.SetMode(cfg.System.GinMode)
 	r := gin.Default()
 	r.Static("/uploads", "./uploads")
 
@@ -17,7 +18,7 @@ func NewRouter(cfg config.System, jwtService *jwt.Service) *gin.Engine {
 	// 注册 user 模块路由
 	registerUserRoutes(api, jwtService)
 	//
-	registerUploadRoutes(api, cfg, jwtService)
+	registerUploadRoutes(api, db, cfg, jwtService)
 
 	return r
 }
