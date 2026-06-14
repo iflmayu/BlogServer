@@ -6,10 +6,12 @@ import (
 	"BlogServer/pkg/captcha"
 	"BlogServer/pkg/config"
 	"BlogServer/pkg/database"
+	"BlogServer/pkg/email"
 	"BlogServer/pkg/jwt"
 	"BlogServer/pkg/logger"
 	"BlogServer/pkg/redis"
 	"BlogServer/pkg/router"
+	"fmt"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -25,17 +27,17 @@ func main() {
 	//zap.S().Infow("测试")
 	db := database.InitDB(cfg.DB)
 
-	migrate(db)
+	//migrate(db)
 	redis.Init(cfg.Redis)
 	captcha.Init(cfg.Captcha, redis.Client)
+	emailService := email.NewService(cfg.Email)
 	jwtService := jwt.NewService(cfg.Jwt.Secret, cfg.Jwt.Issuer, cfg.Jwt.Expire)
-	//tokenString, _ := jwtService.GenerateToken(jwt.Claims{
-	//	UserID:   1,
-	//	Username: "admin",
-	//})
-	//fmt.Println(tokenString)
 
-	r := router.NewRouter(db, cfg, jwtService)
+	//生成token
+	//generateToken(jwtService)
+
+	// 启动 web 服务
+	r := router.NewRouter(db, cfg, jwtService, emailService)
 	if err := r.Run(cfg.System.Addr()); err != nil {
 		zap.S().Fatalw("服务器启动失败", "err", err)
 	}
@@ -52,4 +54,12 @@ func migrate(db *gorm.DB) {
 		return
 	}
 	zap.S().Infow("数据库迁移成功")
+}
+
+func generateToken(jwtService *jwt.Service) {
+	tokenString, _ := jwtService.GenerateToken(jwt.Claims{
+		UserID:   1,
+		Username: "admin",
+	})
+	fmt.Println(tokenString)
 }

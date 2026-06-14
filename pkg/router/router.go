@@ -2,13 +2,14 @@ package router
 
 import (
 	"BlogServer/pkg/config"
+	"BlogServer/pkg/email"
 	"BlogServer/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-func NewRouter(db *gorm.DB, cfg *config.Config, jwtService *jwt.Service) *gin.Engine {
+func NewRouter(db *gorm.DB, cfg *config.Config, jwtService *jwt.Service, emailService *email.Service) *gin.Engine {
 	gin.SetMode(cfg.System.GinMode)
 	r := gin.Default()
 	r.Static("/uploads", "./uploads")
@@ -16,7 +17,7 @@ func NewRouter(db *gorm.DB, cfg *config.Config, jwtService *jwt.Service) *gin.En
 	api := r.Group("/api")
 
 	// 注册 user 模块路由
-	registerUserRoutes(api, jwtService)
+	registerUserRoutes(api, jwtService, emailService)
 	//
 	registerUploadRoutes(api, db, cfg, jwtService)
 

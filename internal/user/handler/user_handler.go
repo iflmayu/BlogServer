@@ -9,13 +9,15 @@ import (
 
 // UserHandler 用户相关的 HTTP 接口处理
 type UserHandler struct {
-	userService *service.UserService
+	userService  *service.UserService
+	emailService *service.EmailService
 }
 
 // NewUserHandler 创建 UserHandler
-func NewUserHandler(userService *service.UserService) *UserHandler {
+func NewUserHandler(userService *service.UserService, emailService *service.EmailService) *UserHandler {
 	return &UserHandler{
-		userService: userService,
+		userService:  userService,
+		emailService: emailService,
 	}
 }
 

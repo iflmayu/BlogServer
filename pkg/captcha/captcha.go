@@ -17,8 +17,8 @@ func Init(cfg config.Captcha, redisClient *redis.Client) {
 		cfg.Height,
 		cfg.Width,
 		cfg.Length,
-		0.7,
-		80,
+		cfg.MaxSkew,
+		cfg.DotCount,
 	)
 	store := newRedisStore(redisClient, time.Duration(cfg.ExpireSeconds)*time.Second)
 	instance = base64Captcha.NewCaptcha(driver, store)

@@ -16,6 +16,7 @@ type Config struct {
 	Upload  Upload  `mapstructure:"upload"`
 	Storage Storage `mapstructure:"storage"`
 	Captcha Captcha `mapstructure:"captcha"`
+	Email   Email   `mapstructure:"email"`
 }
 
 func LoadConfig(configPath string) (c *Config) {
