@@ -43,3 +43,8 @@ storage:
     secret_key: zsLomNgxi8GuKSKeNY0Uv1LDdYnfNzHQLHHPGt5j
     bucket: iflmayu2
     domain: http://tgm9arffj.hn-bkt.clouddn.com
+captcha:
+  expire_seconds: 300
+  width: 240
+  height: 80
+  length: 4

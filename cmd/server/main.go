@@ -3,13 +3,13 @@ package main
 import (
 	uploadDomain "BlogServer/internal/upload/domain"
 	userDomain "BlogServer/internal/user/domain"
+	"BlogServer/pkg/captcha"
 	"BlogServer/pkg/config"
 	"BlogServer/pkg/database"
 	"BlogServer/pkg/jwt"
 	"BlogServer/pkg/logger"
 	"BlogServer/pkg/redis"
 	"BlogServer/pkg/router"
-	"fmt"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -27,12 +27,13 @@ func main() {
 
 	migrate(db)
 	redis.Init(cfg.Redis)
+	captcha.Init(cfg.Captcha, redis.Client)
 	jwtService := jwt.NewService(cfg.Jwt.Secret, cfg.Jwt.Issuer, cfg.Jwt.Expire)
-	tokenString, _ := jwtService.GenerateToken(jwt.Claims{
-		UserID:   1,
-		Username: "admin",
-	})
-	fmt.Println(tokenString)
+	//tokenString, _ := jwtService.GenerateToken(jwt.Claims{
+	//	UserID:   1,
+	//	Username: "admin",
+	//})
+	//fmt.Println(tokenString)
 
 	r := router.NewRouter(db, cfg, jwtService)
 	if err := r.Run(cfg.System.Addr()); err != nil {

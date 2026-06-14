@@ -23,6 +23,7 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 func (h *UserHandler) RegisterRoutes(r *gin.RouterGroup) {
 	userGroup := r.Group("/user")
 	{
+		userGroup.GET("/captcha", h.GenerateCaptcha)
 		userGroup.POST("/login", middleware.BindJSON[LoginRequest](), h.Login)
 	}
 }

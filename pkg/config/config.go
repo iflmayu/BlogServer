@@ -15,6 +15,7 @@ type Config struct {
 	Redis   Redis   `mapstructure:"redis"`
 	Upload  Upload  `mapstructure:"upload"`
 	Storage Storage `mapstructure:"storage"`
+	Captcha Captcha `mapstructure:"captcha"`
 }
 
 func LoadConfig(configPath string) (c *Config) {
