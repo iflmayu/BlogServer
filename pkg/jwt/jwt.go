@@ -45,6 +45,7 @@ func (s *Service) GenerateToken(claims Claims) (string, error) {
 	return token.SignedString([]byte(s.secret))
 }
 
+// ParseToken 解析 Token
 func (s *Service) ParseToken(tokenString string) (*MyClaims, error) {
 	if tokenString == "" {
 		return nil, errors.New("请登录, token为空")

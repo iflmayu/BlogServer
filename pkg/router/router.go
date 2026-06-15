@@ -17,7 +17,7 @@ func NewRouter(db *gorm.DB, cfg *config.Config, jwtService *jwt.Service, emailSe
 	api := r.Group("/api")
 
 	// 注册 user 模块路由
-	registerUserRoutes(api, jwtService, emailService)
+	registerUserRoutes(api, db, jwtService, emailService)
 	//
 	registerUploadRoutes(api, db, cfg, jwtService)
 

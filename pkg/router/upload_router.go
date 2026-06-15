@@ -6,7 +6,6 @@ import (
 	"BlogServer/internal/upload/service"
 	"BlogServer/pkg/config"
 	"BlogServer/pkg/jwt"
-	"BlogServer/pkg/middleware"
 	"BlogServer/pkg/storage"
 
 	"github.com/gin-gonic/gin"
@@ -27,16 +26,8 @@ func registerUploadRoutes(r *gin.RouterGroup, db *gorm.DB, cfg *config.Config, j
 
 	uploadRepo := repo.NewUploadRepo(db)
 	uploadService := service.NewUploadService(uploadRepo, uploader, cfg.Upload)
-	uploadHandler := handler.NewUploadHandler(uploadService)
+	uploadHandler := handler.NewUploadHandler(uploadService, jwtService)
 
 	// 公开路由
 	uploadHandler.RegisterRoutes(r)
-
-	// 需要登录的路由
-	auth := r.Group("/upload")
-	auth.Use(middleware.AuthMiddleware(jwtService))
-	{
-		auth.POST("/images", uploadHandler.UploadImage)
-	}
-
 }

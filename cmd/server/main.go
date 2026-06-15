@@ -30,8 +30,9 @@ func main() {
 	//migrate(db)
 	redis.Init(cfg.Redis)
 	captcha.Init(cfg.Captcha, redis.Client)
-	emailService := email.NewService(cfg.Email)
+
 	jwtService := jwt.NewService(cfg.Jwt.Secret, cfg.Jwt.Issuer, cfg.Jwt.Expire)
+	emailService := email.NewService(cfg.Email)
 
 	//生成token
 	//generateToken(jwtService)
