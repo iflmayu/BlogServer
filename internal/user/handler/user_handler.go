@@ -31,8 +31,12 @@ func (h *UserHandler) RegisterRoutes(r *gin.RouterGroup) {
 	userGroup := r.Group("/user")
 	{
 		userGroup.GET("/captcha", h.GenerateCaptcha)
-		userGroup.POST("/register", middleware.BindJSON[RegisterRequest](), h.Register)
-		userGroup.POST("/login", middleware.BindJSON[LoginRequest](), h.Login)
+		userGroup.POST("/email/code/register", middleware.BindJSON[SendRegisterCodeRequest](), h.SendRegisterCode)
+		userGroup.POST("/register/verify", middleware.BindJSON[VerifyRegisterRequest](), h.VerifyRegisterInfo)
+		userGroup.POST("/register/complete", middleware.BindJSON[CompleteRegisterRequest](), h.CompleteRegister)
+		userGroup.POST("/login/pwdlogin", middleware.BindJSON[LoginRequest](), h.PwdLogin)
+		userGroup.POST("/email/code/login", middleware.BindJSON[SendLoginCodeRequest](), h.SendLoginCode)
+		userGroup.POST("/login/emaillogin", middleware.BindJSON[EmailLoginRequest](), h.LoginByEmail)
 	}
 
 	// 需要登录的路由
@@ -43,7 +47,5 @@ func (h *UserHandler) RegisterRoutes(r *gin.RouterGroup) {
 			claims, _ := c.Get("claims")
 			response.OkWithData(claims, c)
 		})
-		auth.POST("/email/code/bind", middleware.BindJSON[SendEmailCodeRequest](), h.SendEmailCode("bind"))
-		auth.POST("/email/code/resetpassword", middleware.BindJSON[SendEmailCodeRequest](), h.SendEmailCode("reset_password"))
 	}
 }
