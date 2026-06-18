@@ -46,7 +46,7 @@ func (h *UserHandler) SendLoginCode(c *gin.Context) {
 		return
 	}
 
-	response.OkWithMsg("登录验证码已发送", c)
+	response.OkWithMsg("登录邮箱验证码已发送", c)
 }
 
 type EmailLoginRequest struct {

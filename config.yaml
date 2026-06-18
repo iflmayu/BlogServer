@@ -17,7 +17,7 @@ db:
   source: mysql
 jwt:
   expire: 24
-  secret: your-generated-base64-string-here
+  secret:
   issuer: iflmayu
 redis:
   host: 127.0.0.1
@@ -40,7 +40,7 @@ storage:
     base_url: http://127.0.0.1:8081
   qiniu:
     access_key: wUlX7B_fyoaSbHwU18yZY76OBrwnQWaqcxZPk48d
-    secret_key: zsLomNgxi8GuKSKeNY0Uv1LDdYnfNzHQLHHPGt5j
+    secret_key:
     bucket: iflmayu2
     domain: http://tgm9arffj.hn-bkt.clouddn.com
 captcha:
@@ -54,5 +54,5 @@ email:
   smtp_host: smtp.qq.com
   smtp_port: 587
   username: iflmayu@qq.com
-  password: habuvibwjdlcbche
+  password:
   from_name: iflmayu

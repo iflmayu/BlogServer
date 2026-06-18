@@ -5,6 +5,7 @@ import (
 	"BlogServer/internal/user/repo"
 	"BlogServer/pkg/jwt"
 	"BlogServer/pkg/redis"
+	"BlogServer/pkg/utils/pwd"
 	"context"
 	"errors"
 	"fmt"
@@ -12,7 +13,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct {
@@ -29,24 +29,11 @@ func NewUserService(userRepo *repo.UserRepo, jwtService *jwt.Service, emailServi
 	}
 }
 
-func (s *UserService) BindEmail(ctx context.Context, userID uint, email, code string) error {
-	// 校验邮箱验证码
-	if !s.emailService.VerifyCode(ctx, "bind", email, code) {
-		return errors.New("邮箱验证码错误或已过期")
-	}
+const registerTokenTTL = 5 * time.Minute
 
-	return nil
-	//// 检查邮箱是否已被其他账号绑定
-	//exists, err := s.userRepo.ExistsEmail(ctx, email)
-	//if err != nil {
-	//	return err
-	//}
-	//if exists {
-	//	return errors.New("该邮箱已被绑定")
-	//}
-	//
-	//// 更新用户邮箱
-	//return s.userRepo.UpdateEmail(ctx, userID, email)
+func (s *UserService) SendRegisterCode(ctx context.Context, email string) error {
+	_, err := s.emailService.SendVerifyCode(ctx, "register", email)
+	return err
 }
 
 func (s *UserService) CheckEmailAvailable(ctx context.Context, email string) error {
@@ -59,13 +46,6 @@ func (s *UserService) CheckEmailAvailable(ctx context.Context, email string) err
 	}
 	return nil
 }
-
-func (s *UserService) SendRegisterCode(ctx context.Context, email string) error {
-	_, err := s.emailService.SendVerifyCode(ctx, "register", email)
-	return err
-}
-
-const registerTokenTTL = time.Minute * 1
 
 func (s *UserService) VerifyRegisterInfo(ctx context.Context, email, username, code string) (string, error) {
 	// 校验邮箱验证码
@@ -109,7 +89,8 @@ func (s *UserService) CompleteRegister(ctx context.Context, token, password, ava
 	}
 	email := parts[0]
 	username := parts[1]
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	hashedPassword, err := pwd.HashPassword(password)
 	if err != nil {
 		return err
 	}
@@ -138,7 +119,7 @@ func (s *UserService) PwdLogin(ctx context.Context, username, password string) (
 	}
 
 	// 校验密码
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+	if !pwd.CheckPassword(user.Password, password) {
 		return "", errors.New("用户名或密码错误")
 	}
 
@@ -190,4 +171,24 @@ func (s *UserService) LoginByEmail(ctx context.Context, email, code string) (str
 	}
 
 	return token, nil
+}
+
+func (s *UserService) BindEmail(ctx context.Context, userID uint, email, code string) error {
+	// 校验邮箱验证码
+	if !s.emailService.VerifyCode(ctx, "bind", email, code) {
+		return errors.New("邮箱验证码错误或已过期")
+	}
+
+	return nil
+	//// 检查邮箱是否已被其他账号绑定
+	//exists, err := s.userRepo.ExistsEmail(ctx, email)
+	//if err != nil {
+	//	return err
+	//}
+	//if exists {
+	//	return errors.New("该邮箱已被绑定")
+	//}
+	//
+	//// 更新用户邮箱
+	//return s.userRepo.UpdateEmail(ctx, userID, email)
 }
