@@ -32,11 +32,10 @@ upload:
     - .png
     - .gif
     - .webp
-  upload_dir: images
+  upload_dir: storage/image
 storage:
-  type: qiniu      # local 或 qiniu
+  type: local      # local 或 qiniu
   local:
-    root_path: ./uploads
     base_url: http://127.0.0.1:8081
   qiniu:
     access_key: wUlX7B_fyoaSbHwU18yZY76OBrwnQWaqcxZPk48d

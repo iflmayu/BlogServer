@@ -12,7 +12,8 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
-	"time"
+
+	"github.com/google/uuid"
 )
 
 type UploadService struct {
@@ -29,7 +30,7 @@ func NewUploadService(repo *repo.UploadRepo, storage storage.Uploader, cfg confi
 	}
 }
 
-func (s *UploadService) UploadImage(ctx context.Context, userID uint, fileHeader *multipart.FileHeader) (string, error) {
+func (s *UploadService) UploadImage(ctx context.Context, fileHeader *multipart.FileHeader) (string, error) {
 	// 校验文件类型
 	ext := filepath.Ext(fileHeader.Filename)
 	if !slices.Contains(s.cfg.AllowedTypes, ext) {
@@ -51,10 +52,8 @@ func (s *UploadService) UploadImage(ctx context.Context, userID uint, fileHeader
 	}()
 
 	// 生成文件名, 相对路径
-	//todo
-	now := time.Now()
-	filename := now.Format("20060102_150405") + "_" + ext
-	relPath := path.Join(s.cfg.UploadDir, now.Format("2006"), now.Format("01"), filename)
+	filename := uuid.New().String() + ext
+	relPath := path.Join(s.cfg.UploadDir, filename)
 
 	// 调用 Storage 层保存（传入 relPath、reader、size）
 	url, err := s.storage.Upload(relPath, src, fileHeader.Size)
@@ -64,7 +63,6 @@ func (s *UploadService) UploadImage(ctx context.Context, userID uint, fileHeader
 
 	// 保存上传记录到数据库
 	upload := &domain.Upload{
-		UserID:   userID,
 		Filename: fileHeader.Filename,
 		URL:      url,
 		Path:     relPath,

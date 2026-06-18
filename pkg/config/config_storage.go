@@ -7,8 +7,7 @@ type Storage struct {
 }
 
 type LocalStorage struct {
-	RootPath string `mapstructure:"root_path"`
-	BaseURL  string `mapstructure:"base_url"`
+	BaseURL string `mapstructure:"base_url"`
 }
 
 type QiniuStorage struct {

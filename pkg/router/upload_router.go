@@ -21,7 +21,7 @@ func registerUploadRoutes(r *gin.RouterGroup, db *gorm.DB, cfg *config.Config, j
 		uploader = storage.NewQiniuStorage(q.AccessKey, q.SecretKey, q.Bucket, q.Domain)
 	default:
 		l := cfg.Storage.Local
-		uploader = storage.NewLocalStorage(l.RootPath, l.BaseURL)
+		uploader = storage.NewLocalStorage(l.BaseURL)
 	}
 
 	uploadRepo := repo.NewUploadRepo(db)

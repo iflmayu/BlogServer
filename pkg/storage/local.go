@@ -2,27 +2,25 @@ package storage
 
 import (
 	"io"
+	"net/url"
 	"os"
-	"path"
 	"path/filepath"
 )
 
 type LocalStorage struct {
-	rootPath string
-	baseURL  string
+	baseURL string
 }
 
-func NewLocalStorage(rootPath, baseURL string) *LocalStorage {
-	return &LocalStorage{rootPath: rootPath, baseURL: baseURL}
+func NewLocalStorage(baseURL string) *LocalStorage {
+	return &LocalStorage{baseURL: baseURL}
 }
 
 func (l *LocalStorage) Upload(relPath string, reader io.Reader, size int64) (string, error) {
-	fullPath := path.Join(l.rootPath, relPath)
-	if err := os.MkdirAll(filepath.Dir(fullPath), os.ModePerm); err != nil {
+	if err := os.MkdirAll(filepath.Dir(relPath), os.ModePerm); err != nil {
 		return "", err
 	}
 
-	file, err := os.Create(fullPath)
+	file, err := os.Create(relPath)
 	if err != nil {
 		return "", err
 	}
@@ -33,6 +31,6 @@ func (l *LocalStorage) Upload(relPath string, reader io.Reader, size int64) (str
 	if _, err := io.Copy(file, reader); err != nil {
 		return "", err
 	}
-
-	return l.baseURL + "/" + fullPath, nil
+	urlPath, _ := url.JoinPath(l.baseURL, "api", relPath)
+	return urlPath, nil
 }

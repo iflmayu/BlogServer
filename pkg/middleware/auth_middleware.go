@@ -8,6 +8,7 @@ import (
 
 	"BlogServer/internal/common/response"
 	"BlogServer/pkg/jwt"
+	"BlogServer/pkg/redis"
 )
 
 func AuthMiddleware(jwtService *jwt.Service) gin.HandlerFunc {
@@ -23,6 +24,13 @@ func AuthMiddleware(jwtService *jwt.Service) gin.HandlerFunc {
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			response.FailWithMsg("token 格式错误", c)
 			c.Abort()
+			return
+		}
+
+		key := fmt.Sprintf("register:token:%s", parts[1])
+		_, err := redis.Client.Get(c, key).Result()
+		if err == nil {
+			c.Next()
 			return
 		}
 

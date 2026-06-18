@@ -12,7 +12,7 @@ import (
 func NewRouter(db *gorm.DB, cfg *config.Config, jwtService *jwt.Service, emailService *email.Service) *gin.Engine {
 	gin.SetMode(cfg.System.GinMode)
 	r := gin.Default()
-	r.Static("/uploads", "./uploads")
+	r.Static("/api/storage/image", cfg.Upload.UploadDir)
 
 	api := r.Group("/api")
 

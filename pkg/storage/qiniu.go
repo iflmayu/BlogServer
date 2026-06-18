@@ -34,7 +34,6 @@ func NewQiniuStorage(accessKey, secretKey, bucket, domain string) *QiniuStorage 
 
 func (q *QiniuStorage) Upload(relPath string, reader io.Reader, size int64) (string, error) {
 	filename := path.Base(relPath)
-	fmt.Println(filename)
 
 	err := q.client.UploadReader(context.Background(), reader, &uploader.ObjectOptions{
 		BucketName: q.bucket,

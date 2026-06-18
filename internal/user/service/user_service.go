@@ -68,16 +68,16 @@ func (s *UserService) VerifyRegisterInfo(ctx context.Context, email, username, c
 	}
 
 	// 生成临时 token
-	token := uuid.New().String()
-	key := fmt.Sprintf("register:token:%s", token)
+	registerToken := uuid.New().String()
+	key := fmt.Sprintf("register:token:%s", registerToken)
 	value := fmt.Sprintf("%s|%s", email, username)
 	redis.Client.Set(ctx, key, value, registerTokenTTL)
 
-	return token, nil
+	return registerToken, nil
 }
 
-func (s *UserService) CompleteRegister(ctx context.Context, token, password, avatar string) error {
-	key := fmt.Sprintf("register:token:%s", token)
+func (s *UserService) CompleteRegister(ctx context.Context, registerToken, password, avatar string) error {
+	key := fmt.Sprintf("register:token:%s", registerToken)
 	value, err := redis.Client.Get(ctx, key).Result()
 	if err != nil {
 		return errors.New("注册令牌无效或已过期")

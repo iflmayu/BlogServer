@@ -27,6 +27,6 @@ func (h *UploadHandler) RegisterRoutes(r *gin.RouterGroup) {
 	auth := r.Group("/upload")
 	auth.Use(middleware.AuthMiddleware(h.jwtService))
 	{
-		auth.POST("/images", h.UploadImage)
+		auth.POST("/image", h.UploadImage)
 	}
 }
