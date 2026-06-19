@@ -48,3 +48,7 @@ func (r *UserRepo) FindByEmail(ctx context.Context, email string) (*domain.User,
 	}
 	return &user, nil
 }
+
+func (r *UserRepo) UpdateAvatar(ctx context.Context, userID uint, avatar string) error {
+	return r.db.WithContext(ctx).Model(&domain.User{}).Where("id = ?", userID).Update("avatar", avatar).Error
+}

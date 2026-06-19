@@ -35,7 +35,6 @@ func (s *UploadService) UploadImage(ctx context.Context, fileHeader *multipart.F
 	ext := filepath.Ext(fileHeader.Filename)
 	if !slices.Contains(s.cfg.AllowedTypes, ext) {
 		return "", fmt.Errorf("仅支持 %s 格式", strings.Join(s.cfg.AllowedTypes, " "))
-
 	}
 
 	// 校验文件大小
@@ -63,7 +62,7 @@ func (s *UploadService) UploadImage(ctx context.Context, fileHeader *multipart.F
 
 	// 保存上传记录到数据库
 	upload := &domain.Upload{
-		Filename: fileHeader.Filename,
+		Filename: filename,
 		URL:      url,
 		Path:     relPath,
 		Size:     fileHeader.Size,

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"BlogServer/internal/common/response"
+	uploadSvc "BlogServer/internal/upload/service"
 	"BlogServer/internal/user/service"
 	"BlogServer/pkg/jwt"
 	"BlogServer/pkg/middleware"
@@ -11,17 +12,24 @@ import (
 
 // UserHandler 用户相关的 HTTP 接口处理
 type UserHandler struct {
-	userService  *service.UserService
-	emailService *service.EmailService
-	jwtService   *jwt.Service
+	userService   *service.UserService
+	emailService  *service.EmailService
+	jwtService    *jwt.Service
+	uploadService *uploadSvc.UploadService
 }
 
 // NewUserHandler 创建 UserHandler
-func NewUserHandler(userService *service.UserService, jwtService *jwt.Service, emailService *service.EmailService) *UserHandler {
+func NewUserHandler(
+	userService *service.UserService,
+	jwtService *jwt.Service,
+	emailService *service.EmailService,
+	uploadService *uploadSvc.UploadService,
+) *UserHandler {
 	return &UserHandler{
-		userService:  userService,
-		jwtService:   jwtService,
-		emailService: emailService,
+		userService:   userService,
+		jwtService:    jwtService,
+		emailService:  emailService,
+		uploadService: uploadService,
 	}
 }
 
@@ -43,6 +51,7 @@ func (h *UserHandler) RegisterRoutes(r *gin.RouterGroup) {
 	auth := r.Group("/user")
 	auth.Use(middleware.AuthMiddleware(h.jwtService))
 	{
+		auth.POST("/avatar", h.UpdateAvatar)
 		auth.GET("/detail", func(c *gin.Context) {
 			claims, _ := c.Get("claims")
 			response.OkWithData(claims, c)

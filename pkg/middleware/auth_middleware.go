@@ -30,6 +30,7 @@ func AuthMiddleware(jwtService *jwt.Service) gin.HandlerFunc {
 		key := fmt.Sprintf("register:token:%s", parts[1])
 		_, err := redis.Client.Get(c, key).Result()
 		if err == nil {
+			c.Set("register_token", parts[1])
 			c.Next()
 			return
 		}

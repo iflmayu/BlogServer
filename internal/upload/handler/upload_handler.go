@@ -2,6 +2,7 @@ package handler
 
 import (
 	"BlogServer/internal/upload/service"
+	userService "BlogServer/internal/user/service"
 	"BlogServer/pkg/jwt"
 	"BlogServer/pkg/middleware"
 
@@ -11,13 +12,19 @@ import (
 type UploadHandler struct {
 	uploadService *service.UploadService
 	jwtService    *jwt.Service
+	userSvc       *userService.UserService
 }
 
 // NewUploadHandler 创建 UploadHandler
-func NewUploadHandler(uploadService *service.UploadService, jwtService *jwt.Service) *UploadHandler {
+func NewUploadHandler(
+	uploadService *service.UploadService,
+	jwtService *jwt.Service,
+	userSvc *userService.UserService,
+) *UploadHandler {
 	return &UploadHandler{
 		uploadService: uploadService,
 		jwtService:    jwtService,
+		userSvc:       userSvc,
 	}
 }
 

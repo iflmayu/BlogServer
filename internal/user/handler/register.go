@@ -64,7 +64,6 @@ func (h *UserHandler) VerifyRegisterInfo(c *gin.Context) {
 type CompleteRegisterRequest struct {
 	RegisterToken string `json:"register_token" binding:"required"`
 	Password      string `json:"password" binding:"required,min=8"`
-	Avatar        string `json:"avatar"`
 }
 
 func (h *UserHandler) CompleteRegister(c *gin.Context) {
@@ -74,7 +73,6 @@ func (h *UserHandler) CompleteRegister(c *gin.Context) {
 		c.Request.Context(),
 		req.RegisterToken,
 		req.Password,
-		req.Avatar,
 	); err != nil {
 		response.FailWithMsg(err.Error(), c)
 		return

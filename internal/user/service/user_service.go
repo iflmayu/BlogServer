@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	goRedis "github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 )
 
 type UserService struct {
@@ -76,9 +78,14 @@ func (s *UserService) VerifyRegisterInfo(ctx context.Context, email, username, c
 	return registerToken, nil
 }
 
-func (s *UserService) CompleteRegister(ctx context.Context, registerToken, password, avatar string) error {
-	key := fmt.Sprintf("register:token:%s", registerToken)
-	value, err := redis.Client.Get(ctx, key).Result()
+func (s *UserService) SaveRegisterAvatar(ctx context.Context, registerToken, url string) error {
+	key := fmt.Sprintf("register:avatar:%s", registerToken)
+	return redis.Client.Set(ctx, key, url, registerTokenTTL).Err()
+}
+
+func (s *UserService) CompleteRegister(ctx context.Context, registerToken, password string) error {
+	registerTokenKey := fmt.Sprintf("register:token:%s", registerToken)
+	value, err := redis.Client.Get(ctx, registerTokenKey).Result()
 	if err != nil {
 		return errors.New("注册令牌无效或已过期")
 	}
@@ -90,14 +97,23 @@ func (s *UserService) CompleteRegister(ctx context.Context, registerToken, passw
 	email := parts[0]
 	username := parts[1]
 
-	hashedPassword, err := pwd.HashPassword(password)
+	hashPassword, err := pwd.HashPassword(password)
 	if err != nil {
 		return err
 	}
 
+	avatarKey := fmt.Sprintf("register:avatar:%s", registerToken)
+	avatar, err := redis.Client.Get(ctx, avatarKey).Result()
+	if err != nil {
+		if !errors.Is(err, goRedis.Nil) {
+			zap.S().Warnw("获取注册头像失败", "error", err)
+		}
+		avatar = ""
+	}
+
 	user := &domain.User{
 		Username: username,
-		Password: string(hashedPassword),
+		Password: hashPassword,
 		Email:    email,
 		Avatar:   avatar,
 		Role:     domain.RoleUser,
@@ -107,7 +123,7 @@ func (s *UserService) CompleteRegister(ctx context.Context, registerToken, passw
 		return err
 	}
 
-	redis.Client.Del(ctx, key)
+	redis.Client.Del(ctx, registerTokenKey, avatarKey)
 	return nil
 }
 
@@ -171,6 +187,10 @@ func (s *UserService) LoginByEmail(ctx context.Context, email, code string) (str
 	}
 
 	return token, nil
+}
+
+func (s *UserService) UpdateAvatar(ctx context.Context, userID uint, avatar string) error {
+	return s.userRepo.UpdateAvatar(ctx, userID, avatar)
 }
 
 func (s *UserService) BindEmail(ctx context.Context, userID uint, email, code string) error {
