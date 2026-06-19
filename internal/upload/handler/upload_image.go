@@ -7,7 +7,7 @@ import (
 )
 
 func (h *UploadHandler) UploadImage(c *gin.Context) {
-	fileHeader, err := c.FormFile("file")
+	fileHeader, err := c.FormFile("image")
 	if err != nil {
 		response.FailWithMsg("请选择要上传的图片", c)
 		return

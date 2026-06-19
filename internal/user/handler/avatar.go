@@ -9,7 +9,7 @@ import (
 
 func (h *UserHandler) UpdateAvatar(c *gin.Context) {
 	// 上传头像
-	fileHeader, err := c.FormFile("file")
+	fileHeader, err := c.FormFile("avatar")
 	if err != nil {
 		response.FailWithMsg("请选择要上传的图片", c)
 		return
