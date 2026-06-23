@@ -20,7 +20,11 @@ func (h *UploadHandler) UploadImage(c *gin.Context) {
 	}
 
 	if _registerToken, exists := c.Get("register_token"); exists {
-		registerToken := _registerToken.(string)
+		registerToken, ok := _registerToken.(string)
+		if !ok {
+			response.FailWithMsg("注册令牌类型错误", c)
+			return
+		}
 		if err = h.userSvc.SaveRegisterAvatar(c.Request.Context(), registerToken, url); err != nil {
 			response.FailWithMsg(err.Error(), c)
 			return

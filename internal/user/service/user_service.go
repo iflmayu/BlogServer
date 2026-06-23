@@ -193,22 +193,81 @@ func (s *UserService) UpdateAvatar(ctx context.Context, userID uint, avatar stri
 	return s.userRepo.UpdateAvatar(ctx, userID, avatar)
 }
 
+func (s *UserService) GetByID(ctx context.Context, userID uint) (*domain.User, error) {
+	return s.userRepo.GetByID(ctx, userID)
+}
+
+func (s *UserService) SendResetPasswordCode(ctx context.Context, email string) error {
+	// 检查邮箱是否已注册
+	exists, err := s.userRepo.ExistsEmail(ctx, email)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return errors.New("该邮箱未注册")
+	}
+
+	_, err = s.emailService.SendVerifyCode(ctx, "reset_password", email)
+	return err
+}
+
+func (s *UserService) ResetPassword(ctx context.Context, email, code, newPassword string) error {
+	// 校验邮箱验证码
+	if !s.emailService.VerifyCode(ctx, "reset_password", email, code) {
+		return errors.New("验证码错误或已过期")
+	}
+
+	// 校验新密码长度
+	if len(newPassword) < 8 {
+		return errors.New("新密码长度不能少于8位")
+	}
+
+	hashedPassword, err := pwd.HashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+
+	return s.userRepo.UpdatePasswordByEmail(ctx, email, hashedPassword)
+}
+
+func (s *UserService) SendBindEmailCode(ctx context.Context, userID uint, email string) error {
+	// 检查邮箱是否已被其他账号绑定
+	exists, err := s.userRepo.ExistsEmail(ctx, email)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return errors.New("该邮箱已被其他账号绑定")
+	}
+
+	// 检查是否绑定当前已使用的邮箱
+	user, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if user.Email == email {
+		return errors.New("不能绑定当前已使用的邮箱")
+	}
+
+	_, err = s.emailService.SendVerifyCode(ctx, "bind", email)
+	return err
+}
+
 func (s *UserService) BindEmail(ctx context.Context, userID uint, email, code string) error {
 	// 校验邮箱验证码
 	if !s.emailService.VerifyCode(ctx, "bind", email, code) {
 		return errors.New("邮箱验证码错误或已过期")
 	}
 
-	return nil
-	//// 检查邮箱是否已被其他账号绑定
-	//exists, err := s.userRepo.ExistsEmail(ctx, email)
-	//if err != nil {
-	//	return err
-	//}
-	//if exists {
-	//	return errors.New("该邮箱已被绑定")
-	//}
-	//
-	//// 更新用户邮箱
-	//return s.userRepo.UpdateEmail(ctx, userID, email)
+	// 检查邮箱是否已被其他账号绑定
+	exists, err := s.userRepo.ExistsEmail(ctx, email)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return errors.New("该邮箱已被其他账号绑定")
+	}
+
+	// 更新用户邮箱
+	return s.userRepo.UpdateEmail(ctx, userID, email)
 }

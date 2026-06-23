@@ -52,3 +52,20 @@ func (r *UserRepo) FindByEmail(ctx context.Context, email string) (*domain.User,
 func (r *UserRepo) UpdateAvatar(ctx context.Context, userID uint, avatar string) error {
 	return r.db.WithContext(ctx).Model(&domain.User{}).Where("id = ?", userID).Update("avatar", avatar).Error
 }
+
+func (r *UserRepo) GetByID(ctx context.Context, userID uint) (*domain.User, error) {
+	var user domain.User
+	err := r.db.WithContext(ctx).Where("id = ?", userID).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *UserRepo) UpdatePasswordByEmail(ctx context.Context, email, password string) error {
+	return r.db.WithContext(ctx).Model(&domain.User{}).Where("email = ?", email).Update("password", password).Error
+}
+
+func (r *UserRepo) UpdateEmail(ctx context.Context, userID uint, email string) error {
+	return r.db.WithContext(ctx).Model(&domain.User{}).Where("id = ?", userID).Update("email", email).Error
+}

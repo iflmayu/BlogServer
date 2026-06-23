@@ -35,7 +35,7 @@ func (h *UserHandler) SendRegisterCode(c *gin.Context) {
 		return
 	}
 
-	response.OkWithMsg("邮箱验证码已发送", c)
+	response.OkWithMsg("注册验证码已发送", c)
 }
 
 type VerifyRegisterRequest struct {

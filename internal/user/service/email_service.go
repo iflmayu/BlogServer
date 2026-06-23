@@ -23,8 +23,8 @@ const emailCodeTTL = 5 * time.Minute
 var subjectMap = map[string]string{
 	"register":       "邮箱注册验证码",
 	"login":          "邮箱登录验证码",
-	"bind":           "邮箱绑定验证码",
 	"reset_password": "重置密码验证码",
+	"bind":           "邮箱绑定验证码",
 }
 
 func getSubject(action string) string {

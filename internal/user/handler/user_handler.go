@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"BlogServer/internal/common/response"
 	uploadSvc "BlogServer/internal/upload/service"
 	"BlogServer/internal/user/service"
 	"BlogServer/pkg/jwt"
@@ -42,9 +41,11 @@ func (h *UserHandler) RegisterRoutes(r *gin.RouterGroup) {
 		userGroup.POST("/email/code/register", middleware.BindJSON[SendRegisterCodeRequest](), h.SendRegisterCode)
 		userGroup.POST("/register/verify", middleware.BindJSON[VerifyRegisterRequest](), h.VerifyRegisterInfo)
 		userGroup.POST("/register/complete", middleware.BindJSON[CompleteRegisterRequest](), h.CompleteRegister)
-		userGroup.POST("/login/pwdlogin", middleware.BindJSON[LoginRequest](), h.PwdLogin)
+		userGroup.POST("/login/pwd", middleware.BindJSON[LoginRequest](), h.PwdLogin)
 		userGroup.POST("/email/code/login", middleware.BindJSON[SendLoginCodeRequest](), h.SendLoginCode)
-		userGroup.POST("/login/emaillogin", middleware.BindJSON[EmailLoginRequest](), h.LoginByEmail)
+		userGroup.POST("/login/email", middleware.BindJSON[EmailLoginRequest](), h.LoginByEmail)
+		userGroup.POST("/email/code/reset", middleware.BindJSON[SendResetPasswordCodeRequest](), h.SendResetPasswordCode)
+		userGroup.POST("/password/reset", middleware.BindJSON[ResetPasswordRequest](), h.ResetPassword)
 	}
 
 	// 需要登录的路由
@@ -52,9 +53,8 @@ func (h *UserHandler) RegisterRoutes(r *gin.RouterGroup) {
 	auth.Use(middleware.AuthMiddleware(h.jwtService))
 	{
 		auth.POST("/avatar", h.UpdateAvatar)
-		auth.GET("/detail", func(c *gin.Context) {
-			claims, _ := c.Get("claims")
-			response.OkWithData(claims, c)
-		})
+		auth.GET("/profile", h.GetProfile)
+		auth.POST("/email/code/bind", middleware.BindJSON[SendBindEmailCodeRequest](), h.SendBindEmailCode)
+		auth.POST("/email/bind", middleware.BindJSON[BindEmailRequest](), h.BindEmail)
 	}
 }
