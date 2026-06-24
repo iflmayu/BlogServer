@@ -28,10 +28,10 @@ func NewArticleHandler(
 }
 
 func (h *ArticleHandler) RegisterRoutes(r *gin.RouterGroup) {
-	//article := r.Group("/article")
-	//{
-	//	article.GET("")
-	//}
+	article := r.Group("/article")
+	{
+		article.GET("", h.ListArticles)
+	}
 
 	// 需要管理员的路由
 	admin := r.Group("/article")

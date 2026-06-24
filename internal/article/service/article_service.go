@@ -35,3 +35,21 @@ func (s *ArticleService) Create(ctx context.Context, input CreateArticleInput) e
 	}
 	return s.articleRepo.Create(ctx, article)
 }
+
+type ListArticleInput struct {
+	Page       int
+	PageSize   int
+	Keyword    string
+	CategoryID uint
+	Status     domain.ArticleStatus
+}
+
+func (s *ArticleService) List(ctx context.Context, input ListArticleInput) ([]domain.Article, int64, error) {
+	return s.articleRepo.List(ctx, &repo.ListArticleQuery{
+		Page:       input.Page,
+		PageSize:   input.PageSize,
+		Keyword:    input.Keyword,
+		CategoryID: input.CategoryID,
+		Status:     input.Status,
+	})
+}
