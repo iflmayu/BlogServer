@@ -271,3 +271,11 @@ func (s *UserService) BindEmail(ctx context.Context, userID uint, email, code st
 	// 更新用户邮箱
 	return s.userRepo.UpdateEmail(ctx, userID, email)
 }
+
+func (s *UserService) IsAdmin(ctx context.Context, userID uint) (bool, error) {
+	user, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return false, err
+	}
+	return user.Role == domain.RoleAdmin, nil
+}

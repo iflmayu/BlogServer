@@ -107,5 +107,5 @@ func printUsage() {
 	fmt.Println("  go run cmd/cli/main.go create-admin --username=<用户名> --email=<邮箱> --password=<密码>")
 	fmt.Println()
 	fmt.Println("示例:")
-	fmt.Println("  go run cmd/cli/main.go create-admin --username=admin --email=admin@example.com --password=Admin@123")
+	fmt.Println("  go run cmd/cli/main.go create-admin --username=admin --email=admin@example.com --password=admin")
 }

@@ -1,6 +1,9 @@
 package router
 
 import (
+	articleHandler "BlogServer/internal/article/handler"
+	articleRepo "BlogServer/internal/article/repo"
+	articleService "BlogServer/internal/article/service"
 	uploadHandler "BlogServer/internal/upload/handler"
 	uploadRepo "BlogServer/internal/upload/repo"
 	uploadService "BlogServer/internal/upload/service"
@@ -31,13 +34,18 @@ func NewRouter(db *gorm.DB, cfg *config.Config, jwtService *jwt.Service, emailSe
 	upRepo := uploadRepo.NewUploadRepo(db)
 	upSvc := uploadService.NewUploadService(upRepo, newUploader(cfg), cfg.Upload)
 
+	aRepo := articleRepo.NewArticleRepo(db)
+	articleSvc := articleService.NewArticleService(aRepo)
+
 	// 创建所有 Handler
 	uHandler := userHandler.NewUserHandler(uSvc, jwtService, emailSvc, upSvc)
 	upHandler := uploadHandler.NewUploadHandler(upSvc, jwtService, uSvc)
+	aHandler := articleHandler.NewArticleHandler(articleSvc, jwtService, uSvc)
 
 	// 注册路由
 	registerUserRoutes(api, uHandler)
 	registerUploadRoutes(api, upHandler)
+	registerArticleRoutes(api, aHandler)
 
 	return r
 }

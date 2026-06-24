@@ -8,9 +8,9 @@ log:
   dir: ./logs
   level: debug # debug/info/warn/error
 db:
-  username: postgres
+  username: root
   password: 123456
-  host: 127.0.0.1
+  host: 192.168.116.130
   port: 5432
   db_name: blog
   debug: true
@@ -20,9 +20,9 @@ jwt:
   secret:
   issuer: iflmayu
 redis:
-  host: 127.0.0.1
+  host: 192.168.116.130
   port: 6379
-  password: 1234
+  password:
   db: 0
 upload:
   max_size: 5 # MB

@@ -1,6 +1,7 @@
 package main
 
 import (
+	articleDomain "BlogServer/internal/article/domain"
 	uploadDomain "BlogServer/internal/upload/domain"
 	userDomain "BlogServer/internal/user/domain"
 	"BlogServer/pkg/captcha"
@@ -33,9 +34,6 @@ func main() {
 	jwtService := jwt.NewService(cfg.Jwt.Secret, cfg.Jwt.Issuer, cfg.Jwt.Expire)
 	emailService := email.NewService(cfg.Email)
 
-	//生成token
-	//generateToken(jwtService)
-
 	// 启动 web 服务
 	r := router.NewRouter(db, cfg, jwtService, emailService)
 	if err := r.Run(cfg.System.Addr()); err != nil {
@@ -48,6 +46,7 @@ func migrate(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&userDomain.User{},
 		&uploadDomain.Upload{},
+		&articleDomain.Article{},
 	)
 	if err != nil {
 		zap.S().Fatalw("数据库迁移失败", "err", err)
