@@ -11,7 +11,6 @@ import (
 	"BlogServer/pkg/logger"
 	"BlogServer/pkg/redis"
 	"BlogServer/pkg/router"
-	"fmt"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -55,12 +54,4 @@ func migrate(db *gorm.DB) {
 		return
 	}
 	zap.S().Infow("数据库迁移成功")
-}
-
-func generateToken(jwtService *jwt.Service) {
-	tokenString, _ := jwtService.GenerateToken(jwt.Claims{
-		UserID:   1,
-		Username: "admin",
-	})
-	fmt.Println(tokenString)
 }

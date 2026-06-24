@@ -7,6 +7,7 @@ import (
 
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -14,6 +15,8 @@ import (
 func InitDB(cfg config.DB) *gorm.DB {
 	var dialector gorm.Dialector
 	switch cfg.Source {
+	case "postgres":
+		dialector = postgres.Open(cfg.DSN())
 	case "mysql":
 		dialector = mysql.Open(cfg.DSN())
 	default:
@@ -43,7 +46,9 @@ func InitDB(cfg config.DB) *gorm.DB {
 	sqlDB.SetConnMaxIdleTime(30 * time.Minute) // 空闲连接超时：连接空闲超过30分钟强制关闭，避免维持长期不用的连接，减少数据库端会话维护开销
 
 	//修改数据库默认字符集
-	db = db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")
+	if cfg.Source == "mysql" {
+		db = db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")
+	}
 	//if !cfg.IsEmpty() {
 	//	err = db.Use(dbresolver.Register(dbresolver.Config{
 	//		// 指定主库：负责写操作

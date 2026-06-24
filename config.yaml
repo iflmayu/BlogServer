@@ -8,13 +8,13 @@ log:
   dir: ./logs
   level: debug # debug/info/warn/error
 db:
-  username: root
+  username: postgres
   password: 123456
   host: 127.0.0.1
-  port: 3306
+  port: 5432
   db_name: blog
   debug: true
-  source: mysql
+  source: postgres
 jwt:
   expire: 24
   secret:

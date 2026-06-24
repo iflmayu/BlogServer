@@ -14,6 +14,9 @@ type DB struct {
 
 func (d *DB) DSN() string {
 	switch d.Source {
+	case "postgres":
+		return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Shanghai",
+			d.Host, d.Username, d.Password, d.DBName, d.Port)
 	default:
 		return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 			d.Username, d.Password, d.Host, d.Port, d.DBName)
