@@ -1,18 +1,15 @@
 package handler
 
 import (
+	"BlogServer/internal/common/request"
 	"BlogServer/internal/common/response"
 	"BlogServer/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
-type DeleteArticleRequest struct {
-	ID uint `uri:"id" binding:"required"`
-}
-
 func (h *ArticleHandler) DeleteArticle(c *gin.Context) {
-	req := middleware.GetRequest[IDRequest](c)
+	req := middleware.GetRequest[request.IDRequest](c)
 
 	if err := h.articleService.Delete(c.Request.Context(), req.ID); err != nil {
 		response.FailWithMsg(err.Error(), c)

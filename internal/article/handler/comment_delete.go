@@ -9,12 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type LikeArticleResponse struct {
-	LikeCount int64 `json:"like_count"`
-	IsLiked   bool  `json:"is_liked"`
-}
-
-func (h *ArticleHandler) LikeArticle(c *gin.Context) {
+func (h *ArticleHandler) DeleteComment(c *gin.Context) {
 	req := middleware.GetRequest[request.IDRequest](c)
 
 	claims, exists := c.Get("claims")
@@ -28,18 +23,16 @@ func (h *ArticleHandler) LikeArticle(c *gin.Context) {
 		return
 	}
 
-	isLiked, likeCount, err := h.articleService.ToggleLike(
-		c.Request.Context(),
-		req.ID,
-		myClaims.UserID,
-	)
+	isAdmin, err := h.userService.IsAdmin(c.Request.Context(), myClaims.UserID)
 	if err != nil {
 		response.FailWithMsg(err.Error(), c)
 		return
 	}
 
-	response.OkWithData(LikeArticleResponse{
-		LikeCount: likeCount,
-		IsLiked:   isLiked,
-	}, c)
+	if err := h.commentService.Delete(c.Request.Context(), req.ID, myClaims.UserID, isAdmin); err != nil {
+		response.FailWithMsg(err.Error(), c)
+		return
+	}
+
+	response.OkWithMsg("评论删除成功", c)
 }

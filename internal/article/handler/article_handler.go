@@ -2,6 +2,7 @@ package handler
 
 import (
 	"BlogServer/internal/article/service"
+	"BlogServer/internal/common/request"
 	userService "BlogServer/internal/user/service"
 	"BlogServer/pkg/jwt"
 	"BlogServer/pkg/middleware"
@@ -34,15 +35,16 @@ func (h *ArticleHandler) RegisterRoutes(r *gin.RouterGroup) {
 	article := r.Group("/article")
 	{
 		article.GET("", middleware.BindQuery[ListArticleRequest](), h.ListArticles)
-		article.GET("/:id", middleware.BindUri[IDRequest](), h.GetArticle)
-		article.POST("/:id/view", middleware.BindUri[IDRequest](), h.ViewArticle)
+		article.GET("/:id", middleware.BindUri[request.IDRequest](), h.GetArticle)
+		article.POST("/:id/view", middleware.BindUri[request.IDRequest](), h.ViewArticle)
+		article.GET("/:id/comments", middleware.BindQuery[ListCommentRequest](), h.ListComments)
 	}
 
 	// 需要登录的路由
 	auth := r.Group("/article")
 	auth.Use(middleware.AuthMiddleware(h.jwtService))
 	{
-		auth.POST("/:id/like", middleware.BindUri[IDRequest](), h.LikeArticle)
+		auth.POST("/:id/like", middleware.BindUri[request.IDRequest](), h.LikeArticle)
 		auth.POST("/:id/comment", middleware.BindJSON[CreateCommentRequest](), h.CreateComment)
 	}
 
@@ -52,6 +54,12 @@ func (h *ArticleHandler) RegisterRoutes(r *gin.RouterGroup) {
 	{
 		admin.POST("", middleware.BindJSON[CreateArticleRequest](), h.CreateArticle)
 		admin.PUT("/:id", middleware.BindJSON[UpdateArticleRequest](), h.UpdateArticle)
-		admin.DELETE("/:id", middleware.BindUri[IDRequest](), h.DeleteArticle)
+		admin.DELETE("/:id", middleware.BindUri[request.IDRequest](), h.DeleteArticle)
+	}
+
+	comment := r.Group("/comment")
+	comment.Use(middleware.AuthMiddleware(h.jwtService))
+	{
+		comment.DELETE("/:id", middleware.BindUri[request.IDRequest](), h.DeleteComment)
 	}
 }

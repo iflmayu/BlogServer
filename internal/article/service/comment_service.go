@@ -49,3 +49,38 @@ func (s *CommentService) Create(ctx context.Context, input CreateCommentInput) (
 
 	return comment, nil
 }
+
+type ListCommentInput struct {
+	ArticleID uint
+	Page      int
+	PageSize  int
+}
+
+func (s *CommentService) List(ctx context.Context, input ListCommentInput) ([]repo.CommentItem, int64, error) {
+	article, err := s.articleRepo.GetByID(ctx, input.ArticleID)
+	if err != nil {
+		return nil, 0, wrapNotFound(err, "文章不存在")
+	}
+	if article.Status != domain.ArticleStatusPublished {
+		return nil, 0, errors.New("文章不存在或已下线")
+	}
+
+	return s.commentRepo.ListByArticleID(ctx, input.ArticleID, input.Page, input.PageSize)
+}
+
+func (s *CommentService) Delete(ctx context.Context, commentID, userID uint, isAdmin bool) error {
+	comment, err := s.commentRepo.GetByID(ctx, commentID)
+	if err != nil {
+		return wrapNotFound(err, "评论不存在")
+	}
+
+	if comment.UserID != userID && !isAdmin {
+		return errors.New("无权删除该评论")
+	}
+
+	if err := s.commentRepo.Delete(ctx, commentID); err != nil {
+		return wrapNotFound(err, "评论不存在")
+	}
+
+	return nil
+}

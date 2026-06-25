@@ -2,7 +2,7 @@ package handler
 
 import (
 	"BlogServer/internal/article/service"
-	"BlogServer/internal/common/domain"
+	"BlogServer/internal/common/request"
 	"BlogServer/internal/common/response"
 	"BlogServer/pkg/jwt"
 	"BlogServer/pkg/middleware"
@@ -27,7 +27,7 @@ type CreateCommentResponse struct {
 }
 
 func (h *ArticleHandler) CreateComment(c *gin.Context) {
-	var idReq domain.IDRequest
+	var idReq request.IDRequest
 	if err := c.ShouldBindUri(&idReq); err != nil {
 		response.FailWithMsg("无效的文章ID", c)
 		return
