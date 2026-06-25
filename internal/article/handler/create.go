@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"BlogServer/internal/article/domain"
 	"BlogServer/internal/article/service"
 	"BlogServer/internal/common/response"
 	"BlogServer/pkg/middleware"
@@ -9,12 +10,12 @@ import (
 )
 
 type CreateArticleRequest struct {
-	Title      string   `json:"title" binding:"required,max=256"`
-	Abstract   string   `json:"abstract" binding:"max=512"`
-	Content    string   `json:"content" binding:"required"`
-	Cover      string   `json:"cover" binding:"max=512"`
-	CategoryID uint     `json:"category_id"`
-	Tags       []string `json:"tags"`
+	Title      string             `json:"title" binding:"required,max=256"`
+	Abstract   string             `json:"abstract" binding:"max=512"`
+	Content    string             `json:"content" binding:"required"`
+	Cover      string             `json:"cover" binding:"max=512"`
+	CategoryID uint               `json:"category_id"`
+	Tags       domain.StringArray `json:"tags"`
 }
 
 func (h *ArticleHandler) CreateArticle(c *gin.Context) {

@@ -4,6 +4,7 @@ import (
 	"BlogServer/internal/article/domain"
 	"BlogServer/internal/article/service"
 	"BlogServer/internal/common/response"
+	"BlogServer/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,6 +21,7 @@ type ListArticleResponse struct {
 	Title        string             `json:"title"`
 	Abstract     string             `json:"abstract"`
 	Cover        string             `json:"cover"`
+	CategoryID   uint               `json:"category_id"`
 	Tags         domain.StringArray `json:"tags"`
 	Status       string             `json:"status"`
 	ViewCount    int64              `json:"view_count"`
@@ -29,11 +31,7 @@ type ListArticleResponse struct {
 }
 
 func (h *ArticleHandler) ListArticles(c *gin.Context) {
-	var req ListArticleRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
-		response.FailWithError(err, c)
-		return
-	}
+	req := middleware.GetRequest[ListArticleRequest](c)
 
 	if req.Page <= 0 {
 		req.Page = 1
@@ -61,6 +59,7 @@ func (h *ArticleHandler) ListArticles(c *gin.Context) {
 			Title:        article.Title,
 			Abstract:     article.Abstract,
 			Cover:        article.Cover,
+			CategoryID:   article.CategoryID,
 			Tags:         article.Tags,
 			Status:       article.Status.String(),
 			ViewCount:    article.ViewCount,

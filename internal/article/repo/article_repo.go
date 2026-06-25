@@ -55,3 +55,25 @@ func (r *ArticleRepo) List(ctx context.Context, query *ListArticleQuery) ([]doma
 
 	return articles, total, err
 }
+
+func (r *ArticleRepo) GetByID(ctx context.Context, id uint) (*domain.Article, error) {
+	var article domain.Article
+	if err := r.db.WithContext(ctx).First(&article, id).Error; err != nil {
+		return nil, err
+	}
+	return &article, nil
+}
+
+func (r *ArticleRepo) Update(ctx context.Context, article *domain.Article) error {
+	return r.db.WithContext(ctx).Model(&domain.Article{}).
+		Where("id = ?", article.ID).
+		Updates(map[string]interface{}{
+			"title":       article.Title,
+			"abstract":    article.Abstract,
+			"content":     article.Content,
+			"cover":       article.Cover,
+			"category_id": article.CategoryID,
+			"tags":        article.Tags,
+			"status":      article.Status,
+		}).Error
+}

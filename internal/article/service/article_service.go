@@ -4,6 +4,7 @@ import (
 	"BlogServer/internal/article/domain"
 	"BlogServer/internal/article/repo"
 	"context"
+	"errors"
 )
 
 type ArticleService struct {
@@ -20,7 +21,7 @@ type CreateArticleInput struct {
 	Content    string
 	Cover      string
 	CategoryID uint
-	Tags       []string
+	Tags       domain.StringArray
 }
 
 func (s *ArticleService) Create(ctx context.Context, input CreateArticleInput) error {
@@ -30,7 +31,7 @@ func (s *ArticleService) Create(ctx context.Context, input CreateArticleInput) e
 		Content:    input.Content,
 		Cover:      input.Cover,
 		CategoryID: input.CategoryID,
-		Tags:       domain.StringArray(input.Tags),
+		Tags:       input.Tags,
 		Status:     domain.ArticleStatusPublished,
 	}
 	return s.articleRepo.Create(ctx, article)
@@ -52,4 +53,47 @@ func (s *ArticleService) List(ctx context.Context, input ListArticleInput) ([]do
 		CategoryID: input.CategoryID,
 		Status:     input.Status,
 	})
+}
+
+type UpdateArticleInput struct {
+	ID         uint
+	Title      string
+	Abstract   string
+	Content    string
+	Cover      string
+	CategoryID uint
+	Tags       domain.StringArray
+	Status     domain.ArticleStatus
+}
+
+func (s *ArticleService) Update(ctx context.Context, input UpdateArticleInput) error {
+	if !input.Status.IsValid() {
+		return errors.New("无效的文章状态")
+	}
+
+	article, err := s.articleRepo.GetByID(ctx, input.ID)
+	if err != nil {
+		return err
+	}
+
+	article.Title = input.Title
+	article.Abstract = input.Abstract
+	article.Content = input.Content
+	article.Cover = input.Cover
+	article.CategoryID = input.CategoryID
+	article.Tags = input.Tags
+	article.Status = input.Status
+
+	return s.articleRepo.Update(ctx, article)
+}
+
+func (s *ArticleService) GetArticleDetail(ctx context.Context, id uint) (*domain.Article, error) {
+	article, err := s.articleRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if article.Status != domain.ArticleStatusPublished {
+		return nil, errors.New("文章不存在或已下线")
+	}
+	return article, nil
 }

@@ -30,7 +30,8 @@ func NewArticleHandler(
 func (h *ArticleHandler) RegisterRoutes(r *gin.RouterGroup) {
 	article := r.Group("/article")
 	{
-		article.GET("", h.ListArticles)
+		article.GET("", middleware.BindQuery[ListArticleRequest](), h.ListArticles)
+		article.GET("/:id", middleware.BindUri[IDRequest](), h.GetArticle)
 	}
 
 	// 需要管理员的路由
@@ -38,5 +39,6 @@ func (h *ArticleHandler) RegisterRoutes(r *gin.RouterGroup) {
 	admin.Use(middleware.AdminMiddleware(h.jwtService, h.userService))
 	{
 		admin.POST("", middleware.BindJSON[CreateArticleRequest](), h.CreateArticle)
+		admin.PUT("/:id", middleware.BindJSON[UpdateArticleRequest](), h.UpdateArticle)
 	}
 }
