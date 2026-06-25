@@ -97,3 +97,19 @@ func (s *ArticleService) GetArticleDetail(ctx context.Context, id uint) (*domain
 	}
 	return article, nil
 }
+
+func (s *ArticleService) ToggleLike(ctx context.Context, articleID, userID uint) (bool, int64, error) {
+	return s.articleRepo.ToggleLike(ctx, articleID, userID)
+}
+
+func (s *ArticleService) HasLiked(ctx context.Context, articleID, userID uint) (bool, error) {
+	return s.articleRepo.HasLiked(ctx, articleID, userID)
+}
+
+func (s *ArticleService) ViewArticle(ctx context.Context, articleID uint) (int64, error) {
+	return s.articleRepo.IncrementViewCount(ctx, articleID)
+}
+
+func (s *ArticleService) Delete(ctx context.Context, articleID uint) error {
+	return s.articleRepo.Delete(ctx, articleID)
+}

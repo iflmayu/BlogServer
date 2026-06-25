@@ -27,7 +27,7 @@ func main() {
 	//zap.S().Infow("测试")
 	db := database.InitDB(cfg.DB)
 
-	//migrate(db)
+	migrate(db)
 	redis.Init(cfg.Redis)
 	captcha.Init(cfg.Captcha, redis.Client)
 
@@ -47,6 +47,7 @@ func migrate(db *gorm.DB) {
 		&userDomain.User{},
 		&uploadDomain.Upload{},
 		&articleDomain.Article{},
+		&articleDomain.ArticleLike{},
 	)
 	if err != nil {
 		zap.S().Fatalw("数据库迁移失败", "err", err)
