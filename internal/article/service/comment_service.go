@@ -3,6 +3,7 @@ package service
 import (
 	"BlogServer/internal/article/domain"
 	"BlogServer/internal/article/repo"
+	userService "BlogServer/internal/user/service"
 	"context"
 	"errors"
 )
@@ -10,12 +11,14 @@ import (
 type CommentService struct {
 	commentRepo *repo.CommentRepo
 	articleRepo *repo.ArticleRepo
+	userService *userService.UserService
 }
 
-func NewCommentService(commentRepo *repo.CommentRepo, articleRepo *repo.ArticleRepo) *CommentService {
+func NewCommentService(commentRepo *repo.CommentRepo, articleRepo *repo.ArticleRepo, userService *userService.UserService) *CommentService {
 	return &CommentService{
 		commentRepo: commentRepo,
 		articleRepo: articleRepo,
+		userService: userService,
 	}
 }
 
@@ -33,6 +36,13 @@ func (s *CommentService) Create(ctx context.Context, input CreateCommentInput) (
 	}
 	if article.Status != domain.ArticleStatusPublished {
 		return nil, errors.New("文章不存在或已下线")
+	}
+
+	// 校验 @ 的用户是否存在
+	if input.AtID > 0 {
+		if _, err := s.userService.GetByID(ctx, input.AtID); err != nil {
+			return nil, wrapNotFound(err, "@的用户不存在")
+		}
 	}
 
 	comment := &domain.ArticleComment{

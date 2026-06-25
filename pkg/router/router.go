@@ -38,7 +38,7 @@ func NewRouter(db *gorm.DB, cfg *config.Config, jwtService *jwt.Service, emailSe
 	articleSvc := articleService.NewArticleService(aRepo)
 
 	cRepo := articleRepo.NewCommentRepo(db)
-	commentSvc := articleService.NewCommentService(cRepo, aRepo)
+	commentSvc := articleService.NewCommentService(cRepo, aRepo, uSvc)
 
 	// 创建所有 Handler
 	uHandler := userHandler.NewUserHandler(uSvc, jwtService, emailSvc, upSvc)

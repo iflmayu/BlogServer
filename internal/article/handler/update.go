@@ -3,15 +3,13 @@ package handler
 import (
 	"BlogServer/internal/article/domain"
 	"BlogServer/internal/article/service"
+	"BlogServer/internal/common/request"
 	"BlogServer/internal/common/response"
 	"BlogServer/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
-type IDRequest struct {
-	ID uint `uri:"id"`
-}
 type UpdateArticleRequest struct {
 	Title      string               `json:"title" binding:"required,max=256"`
 	Abstract   string               `json:"abstract" binding:"max=512"`
@@ -23,7 +21,7 @@ type UpdateArticleRequest struct {
 }
 
 func (h *ArticleHandler) UpdateArticle(c *gin.Context) {
-	var idReq IDRequest
+	var idReq request.IDRequest
 	if err := c.ShouldBindUri(&idReq); err != nil {
 		response.FailWithMsg("无效的文章ID", c)
 		return
