@@ -5,6 +5,8 @@ import (
 	"BlogServer/internal/article/repo"
 	"context"
 	"errors"
+
+	"gorm.io/gorm"
 )
 
 type ArticleService struct {
@@ -66,6 +68,14 @@ type UpdateArticleInput struct {
 	Status     domain.ArticleStatus
 }
 
+// wrapNotFound 将 gorm 的 record not found 转换为友好提示
+func wrapNotFound(err error, msg string) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New(msg)
+	}
+	return err
+}
+
 func (s *ArticleService) Update(ctx context.Context, input UpdateArticleInput) error {
 	if !input.Status.IsValid() {
 		return errors.New("无效的文章状态")
@@ -73,7 +83,7 @@ func (s *ArticleService) Update(ctx context.Context, input UpdateArticleInput) e
 
 	article, err := s.articleRepo.GetByID(ctx, input.ID)
 	if err != nil {
-		return err
+		return wrapNotFound(err, "文章不存在")
 	}
 
 	article.Title = input.Title
@@ -90,7 +100,7 @@ func (s *ArticleService) Update(ctx context.Context, input UpdateArticleInput) e
 func (s *ArticleService) GetArticleDetail(ctx context.Context, id uint) (*domain.Article, error) {
 	article, err := s.articleRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, wrapNotFound(err, "文章不存在")
 	}
 	if article.Status != domain.ArticleStatusPublished {
 		return nil, errors.New("文章不存在或已下线")
@@ -111,5 +121,8 @@ func (s *ArticleService) ViewArticle(ctx context.Context, articleID uint) (int64
 }
 
 func (s *ArticleService) Delete(ctx context.Context, articleID uint) error {
-	return s.articleRepo.Delete(ctx, articleID)
+	if err := s.articleRepo.Delete(ctx, articleID); err != nil {
+		return wrapNotFound(err, "文章不存在")
+	}
+	return nil
 }

@@ -11,17 +11,20 @@ import (
 
 type ArticleHandler struct {
 	articleService *service.ArticleService
+	commentService *service.CommentService
 	jwtService     *jwt.Service
 	userService    *userService.UserService
 }
 
 func NewArticleHandler(
 	articleService *service.ArticleService,
+	commentService *service.CommentService,
 	jwtService *jwt.Service,
 	userService *userService.UserService,
 ) *ArticleHandler {
 	return &ArticleHandler{
 		articleService: articleService,
+		commentService: commentService,
 		jwtService:     jwtService,
 		userService:    userService,
 	}
@@ -40,6 +43,7 @@ func (h *ArticleHandler) RegisterRoutes(r *gin.RouterGroup) {
 	auth.Use(middleware.AuthMiddleware(h.jwtService))
 	{
 		auth.POST("/:id/like", middleware.BindUri[IDRequest](), h.LikeArticle)
+		auth.POST("/:id/comment", middleware.BindJSON[CreateCommentRequest](), h.CreateComment)
 	}
 
 	// 需要管理员的路由

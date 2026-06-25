@@ -10,7 +10,7 @@ func BindJSON[T any]() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req T
 		if err := c.ShouldBindJSON(&req); err != nil {
-			response.FailWithMsg(err.Error(), c)
+			response.FailWithError(err, c)
 			c.Abort()
 			return
 		}
@@ -23,7 +23,7 @@ func BindQuery[T any]() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req T
 		if err := c.ShouldBindQuery(&req); err != nil {
-			response.FailWithMsg(err.Error(), c)
+			response.FailWithError(err, c)
 			c.Abort()
 			return
 		}
@@ -36,7 +36,7 @@ func BindUri[T any]() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req T
 		if err := c.ShouldBindUri(&req); err != nil {
-			response.FailWithMsg(err.Error(), c)
+			response.FailWithError(err, c)
 			c.Abort()
 			return
 		}

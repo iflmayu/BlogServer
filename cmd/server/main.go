@@ -48,6 +48,7 @@ func migrate(db *gorm.DB) {
 		&uploadDomain.Upload{},
 		&articleDomain.Article{},
 		&articleDomain.ArticleLike{},
+		&articleDomain.ArticleComment{},
 	)
 	if err != nil {
 		zap.S().Fatalw("数据库迁移失败", "err", err)
