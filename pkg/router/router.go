@@ -29,22 +29,20 @@ func NewRouter(db *gorm.DB, cfg *config.Config, jwtService *jwt.Service, emailSe
 
 	api := r.Group("/api")
 
-	// 创建所有 Service
+	// 创建所有 Repo
 	uRepo := userRepo.NewUserRepo(db)
+	upRepo := uploadRepo.NewUploadRepo(db)
+	aRepo := articleRepo.NewArticleRepo(db)
+	cRepo := articleRepo.NewCommentRepo(db)
+	catRepo := categoryRepo.NewCategoryRepo(db)
+
+	// 创建所有 Service
 	emailSvc := userService.NewEmailService(emailService)
 	uSvc := userService.NewUserService(uRepo, jwtService, emailSvc)
-
-	upRepo := uploadRepo.NewUploadRepo(db)
 	upSvc := uploadService.NewUploadService(upRepo, newUploader(cfg), cfg.Upload)
-
-	aRepo := articleRepo.NewArticleRepo(db)
-	articleSvc := articleService.NewArticleService(aRepo)
-
-	cRepo := articleRepo.NewCommentRepo(db)
+	articleSvc := articleService.NewArticleService(aRepo, catRepo)
 	commentSvc := articleService.NewCommentService(cRepo, aRepo, uSvc)
-
-	catRepo := categoryRepo.NewCategoryRepo(db)
-	catSvc := categoryService.NewCategoryService(catRepo)
+	catSvc := categoryService.NewCategoryService(catRepo, aRepo)
 
 	// 创建所有 Handler
 	uHandler := userHandler.NewUserHandler(uSvc, jwtService, emailSvc, upSvc)

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"BlogServer/internal/category/service"
+	"BlogServer/internal/common/request"
 	userService "BlogServer/internal/user/service"
 	"BlogServer/pkg/jwt"
 	"BlogServer/pkg/middleware"
@@ -38,5 +39,6 @@ func (h *CategoryHandler) RegisterRoutes(r *gin.RouterGroup) {
 	{
 		admin.POST("", middleware.BindJSON[CreateCategoryRequest](), h.CreateCategory)
 		admin.PUT("/:id", middleware.BindJSON[UpdateCategoryRequest](), h.UpdateCategory)
+		admin.DELETE("/:id", middleware.BindUri[request.IDRequest](), h.DeleteCategory)
 	}
 }

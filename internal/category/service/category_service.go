@@ -1,6 +1,7 @@
 package service
 
 import (
+	aRepo "BlogServer/internal/article/repo"
 	"BlogServer/internal/category/domain"
 	"BlogServer/internal/category/repo"
 	"context"
@@ -12,10 +13,16 @@ import (
 
 type CategoryService struct {
 	categoryRepo *repo.CategoryRepo
+	articleRepo  *aRepo.ArticleRepo
 }
 
-func NewCategoryService(categoryRepo *repo.CategoryRepo) *CategoryService {
-	return &CategoryService{categoryRepo: categoryRepo}
+func NewCategoryService(
+	categoryRepo *repo.CategoryRepo,
+	articleRepo *aRepo.ArticleRepo,
+) *CategoryService {
+	return &CategoryService{
+		categoryRepo: categoryRepo,
+		articleRepo:  articleRepo}
 }
 
 type CreateCategoryInput struct {
@@ -88,4 +95,24 @@ func (s *CategoryService) Update(ctx context.Context, input UpdateCategoryInput)
 	category.SortOrder = input.SortOrder
 
 	return s.categoryRepo.Update(ctx, category)
+}
+
+func (s *CategoryService) Delete(ctx context.Context, id uint) error {
+	category, err := s.categoryRepo.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("分类不存在")
+		}
+		return err
+	}
+
+	count, err := s.articleRepo.CountByCategoryID(ctx, category.ID)
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return errors.New("该分类下存在文章，无法删除")
+	}
+
+	return s.categoryRepo.Delete(ctx, category.ID)
 }

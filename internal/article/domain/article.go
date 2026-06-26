@@ -8,7 +8,7 @@ type Article struct {
 	Abstract     string        `gorm:"size:512" json:"abstract"`
 	Content      string        `gorm:"type:text" json:"content"`
 	Cover        string        `gorm:"size:512" json:"cover"`
-	CategoryID   uint          `gorm:"index" json:"category_id"`
+	CategoryID   uint          `gorm:"index;default:0" json:"category_id"`
 	Tags         StringArray   `gorm:"type:json" json:"tags"`
 	Status       ArticleStatus `gorm:"default:1;not null;index" json:"status"`
 	ViewCount    int64         `gorm:"default:0" json:"view_count"`

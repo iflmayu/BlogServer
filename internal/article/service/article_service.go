@@ -3,6 +3,7 @@ package service
 import (
 	"BlogServer/internal/article/domain"
 	"BlogServer/internal/article/repo"
+	catRepo "BlogServer/internal/category/repo"
 	"context"
 	"errors"
 
@@ -10,11 +11,18 @@ import (
 )
 
 type ArticleService struct {
-	articleRepo *repo.ArticleRepo
+	articleRepo  *repo.ArticleRepo
+	categoryRepo *catRepo.CategoryRepo
 }
 
-func NewArticleService(articleRepo *repo.ArticleRepo) *ArticleService {
-	return &ArticleService{articleRepo: articleRepo}
+func NewArticleService(
+	articleRepo *repo.ArticleRepo,
+	categoryRepo *catRepo.CategoryRepo,
+) *ArticleService {
+	return &ArticleService{
+		articleRepo:  articleRepo,
+		categoryRepo: categoryRepo,
+	}
 }
 
 type CreateArticleInput struct {
@@ -37,6 +45,20 @@ func (s *ArticleService) Create(ctx context.Context, input CreateArticleInput) e
 		Status:     domain.ArticleStatusPublished,
 	}
 	return s.articleRepo.Create(ctx, article)
+}
+
+func (s *ArticleService) validateCategory(ctx context.Context, categoryID uint) error {
+	if categoryID == 0 {
+		return nil
+	}
+	_, err := s.categoryRepo.GetByID(ctx, categoryID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("分类不存在")
+		}
+		return err
+	}
+	return nil
 }
 
 type ListArticleInput struct {
@@ -79,6 +101,10 @@ func wrapNotFound(err error, msg string) error {
 func (s *ArticleService) Update(ctx context.Context, input UpdateArticleInput) error {
 	if !input.Status.IsValid() {
 		return errors.New("无效的文章状态")
+	}
+
+	if err := s.validateCategory(ctx, input.CategoryID); err != nil {
+		return err
 	}
 
 	article, err := s.articleRepo.GetByID(ctx, input.ID)

@@ -176,3 +176,11 @@ func (r *ArticleRepo) Delete(ctx context.Context, articleID uint) error {
 		return nil
 	})
 }
+
+func (r *ArticleRepo) CountByCategoryID(ctx context.Context, categoryID uint) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&domain.Article{}).
+		Where("category_id = ?", categoryID).
+		Count(&count).Error
+	return count, err
+}

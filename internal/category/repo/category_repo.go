@@ -50,3 +50,14 @@ func (r *CategoryRepo) GetByNameOrSlug(ctx context.Context, name, slug string, e
 func (r *CategoryRepo) Update(ctx context.Context, category *domain.Category) error {
 	return r.db.WithContext(ctx).Save(category).Error
 }
+
+func (r *CategoryRepo) Delete(ctx context.Context, id uint) error {
+	result := r.db.WithContext(ctx).Delete(&domain.Category{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
+}
