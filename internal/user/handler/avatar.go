@@ -18,6 +18,7 @@ func (h *UserHandler) UpdateAvatar(c *gin.Context) {
 	url, err := h.uploadService.UploadImage(c.Request.Context(), fileHeader)
 	if err != nil {
 		response.FailWithMsg(err.Error(), c)
+		return
 	}
 
 	// 更新 user.avatar

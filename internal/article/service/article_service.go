@@ -35,6 +35,10 @@ type CreateArticleInput struct {
 }
 
 func (s *ArticleService) Create(ctx context.Context, input CreateArticleInput) error {
+	if err := s.validateCategory(ctx, input.CategoryID); err != nil {
+		return err
+	}
+
 	article := &domain.Article{
 		Title:      input.Title,
 		Abstract:   input.Abstract,
