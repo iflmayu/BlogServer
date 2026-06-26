@@ -4,6 +4,9 @@ import (
 	articleHandler "BlogServer/internal/article/handler"
 	articleRepo "BlogServer/internal/article/repo"
 	articleService "BlogServer/internal/article/service"
+	categoryHandler "BlogServer/internal/category/handler"
+	categoryRepo "BlogServer/internal/category/repo"
+	categoryService "BlogServer/internal/category/service"
 	uploadHandler "BlogServer/internal/upload/handler"
 	uploadRepo "BlogServer/internal/upload/repo"
 	uploadService "BlogServer/internal/upload/service"
@@ -40,15 +43,20 @@ func NewRouter(db *gorm.DB, cfg *config.Config, jwtService *jwt.Service, emailSe
 	cRepo := articleRepo.NewCommentRepo(db)
 	commentSvc := articleService.NewCommentService(cRepo, aRepo, uSvc)
 
+	catRepo := categoryRepo.NewCategoryRepo(db)
+	catSvc := categoryService.NewCategoryService(catRepo)
+
 	// 创建所有 Handler
 	uHandler := userHandler.NewUserHandler(uSvc, jwtService, emailSvc, upSvc)
 	upHandler := uploadHandler.NewUploadHandler(upSvc, jwtService, uSvc)
 	aHandler := articleHandler.NewArticleHandler(articleSvc, commentSvc, jwtService, uSvc)
+	catHandler := categoryHandler.NewCategoryHandler(catSvc, jwtService, uSvc)
 
 	// 注册路由
 	registerUserRoutes(api, uHandler)
 	registerUploadRoutes(api, upHandler)
 	registerArticleRoutes(api, aHandler)
+	registerCategoryRoutes(api, catHandler)
 
 	return r
 }

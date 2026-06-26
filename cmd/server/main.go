@@ -2,6 +2,7 @@ package main
 
 import (
 	articleDomain "BlogServer/internal/article/domain"
+	categoryDomain "BlogServer/internal/category/domain"
 	uploadDomain "BlogServer/internal/upload/domain"
 	userDomain "BlogServer/internal/user/domain"
 	"BlogServer/pkg/captcha"
@@ -49,6 +50,7 @@ func migrate(db *gorm.DB) {
 		&articleDomain.Article{},
 		&articleDomain.ArticleLike{},
 		&articleDomain.ArticleComment{},
+		&categoryDomain.Category{},
 	)
 	if err != nil {
 		zap.S().Fatalw("数据库迁移失败", "err", err)

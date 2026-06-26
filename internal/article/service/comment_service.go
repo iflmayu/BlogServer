@@ -40,6 +40,9 @@ func (s *CommentService) Create(ctx context.Context, input CreateCommentInput) (
 
 	// 校验 @ 的用户是否存在
 	if input.AtID > 0 {
+		if input.AtID == input.UserID {
+			return nil, errors.New("不能@自己")
+		}
 		if _, err := s.userService.GetByID(ctx, input.AtID); err != nil {
 			return nil, wrapNotFound(err, "@的用户不存在")
 		}
