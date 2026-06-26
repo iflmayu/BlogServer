@@ -28,6 +28,11 @@ func NewCategoryHandler(
 }
 
 func (h *CategoryHandler) RegisterRoutes(r *gin.RouterGroup) {
+	category := r.Group("/category")
+	{
+		category.GET("", h.ListCategories)
+	}
+
 	admin := r.Group("/category")
 	admin.Use(middleware.AdminMiddleware(h.jwtService, h.userService))
 	{

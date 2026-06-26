@@ -40,3 +40,7 @@ func (s *CategoryService) Create(ctx context.Context, input CreateCategoryInput)
 
 	return s.categoryRepo.Create(ctx, category)
 }
+
+func (s *CategoryService) List(ctx context.Context) ([]domain.Category, error) {
+	return s.categoryRepo.List(ctx)
+}
