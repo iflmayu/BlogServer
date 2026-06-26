@@ -37,5 +37,6 @@ func (h *CategoryHandler) RegisterRoutes(r *gin.RouterGroup) {
 	admin.Use(middleware.AdminMiddleware(h.jwtService, h.userService))
 	{
 		admin.POST("", middleware.BindJSON[CreateCategoryRequest](), h.CreateCategory)
+		admin.PUT("/:id", middleware.BindJSON[UpdateCategoryRequest](), h.UpdateCategory)
 	}
 }

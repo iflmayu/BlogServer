@@ -26,3 +26,27 @@ func (r *CategoryRepo) List(ctx context.Context) ([]domain.Category, error) {
 		Find(&categories).Error
 	return categories, err
 }
+
+func (r *CategoryRepo) GetByID(ctx context.Context, id uint) (*domain.Category, error) {
+	var category domain.Category
+	err := r.db.WithContext(ctx).First(&category, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &category, nil
+}
+
+func (r *CategoryRepo) GetByNameOrSlug(ctx context.Context, name, slug string, excludeID uint) (*domain.Category, error) {
+	var category domain.Category
+	err := r.db.WithContext(ctx).
+		Where("(name = ? OR slug = ?) AND id != ?", name, slug, excludeID).
+		First(&category).Error
+	if err != nil {
+		return nil, err
+	}
+	return &category, nil
+}
+
+func (r *CategoryRepo) Update(ctx context.Context, category *domain.Category) error {
+	return r.db.WithContext(ctx).Save(category).Error
+}
