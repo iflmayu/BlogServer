@@ -16,6 +16,7 @@ type ArticleDetailResponse struct {
 	Content      string             `json:"content"`
 	Cover        string             `json:"cover"`
 	CategoryID   uint               `json:"category_id"`
+	CategoryName string             `json:"category_name"`
 	Tags         domain.StringArray `json:"tags"`
 	Status       string             `json:"status"`
 	ViewCount    int64              `json:"view_count"`
@@ -41,6 +42,7 @@ func (h *ArticleHandler) GetArticle(c *gin.Context) {
 		Content:      article.Content,
 		Cover:        article.Cover,
 		CategoryID:   article.CategoryID,
+		CategoryName: article.CategoryName,
 		Tags:         article.Tags,
 		Status:       article.Status.String(),
 		ViewCount:    article.ViewCount,

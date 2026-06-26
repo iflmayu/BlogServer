@@ -69,14 +69,32 @@ type ListArticleInput struct {
 	Status     domain.ArticleStatus
 }
 
-func (s *ArticleService) List(ctx context.Context, input ListArticleInput) ([]domain.Article, int64, error) {
-	return s.articleRepo.List(ctx, &repo.ListArticleQuery{
+type ListArticleItem struct {
+	domain.Article
+	CategoryName string `json:"category_name"`
+}
+
+func (s *ArticleService) List(ctx context.Context, input ListArticleInput) ([]ListArticleItem, int64, error) {
+	repoItems, total, err := s.articleRepo.List(ctx, &repo.ListArticleQuery{
 		Page:       input.Page,
 		PageSize:   input.PageSize,
 		Keyword:    input.Keyword,
 		CategoryID: input.CategoryID,
 		Status:     input.Status,
 	})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	items := make([]ListArticleItem, len(repoItems))
+	for i, item := range repoItems {
+		items[i] = ListArticleItem{
+			Article:      item.Article,
+			CategoryName: item.CategoryName,
+		}
+	}
+
+	return items, total, nil
 }
 
 type UpdateArticleInput struct {
@@ -123,7 +141,12 @@ func (s *ArticleService) Update(ctx context.Context, input UpdateArticleInput) e
 	return s.articleRepo.Update(ctx, article)
 }
 
-func (s *ArticleService) GetArticleDetail(ctx context.Context, id uint) (*domain.Article, error) {
+type ArticleDetail struct {
+	domain.Article
+	CategoryName string
+}
+
+func (s *ArticleService) GetArticleDetail(ctx context.Context, id uint) (*ArticleDetail, error) {
 	article, err := s.articleRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, wrapNotFound(err, "文章不存在")
@@ -131,7 +154,19 @@ func (s *ArticleService) GetArticleDetail(ctx context.Context, id uint) (*domain
 	if article.Status != domain.ArticleStatusPublished {
 		return nil, errors.New("文章不存在或已下线")
 	}
-	return article, nil
+
+	detail := &ArticleDetail{Article: *article}
+	if article.CategoryID > 0 {
+		category, err := s.categoryRepo.GetByID(ctx, article.CategoryID)
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		if category != nil {
+			detail.CategoryName = category.Name
+		}
+	}
+
+	return detail, nil
 }
 
 func (s *ArticleService) ToggleLike(ctx context.Context, articleID, userID uint) (bool, int64, error) {

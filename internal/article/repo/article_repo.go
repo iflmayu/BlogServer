@@ -21,6 +21,25 @@ func (r *ArticleRepo) Create(ctx context.Context, article *domain.Article) error
 	return r.db.WithContext(ctx).Create(article).Error
 }
 
+type ListArticleItem struct {
+	domain.Article
+	CategoryName string `json:"category_name"`
+}
+
+func (r *ArticleRepo) buildListQuery(db *gorm.DB, query *ListArticleQuery) *gorm.DB {
+	if query.Status != 0 {
+		db = db.Where("articles.status = ?", query.Status)
+	}
+	if query.CategoryID != 0 {
+		db = db.Where("articles.category_id = ?", query.CategoryID)
+	}
+	if query.Keyword != "" {
+		keyword := "%" + query.Keyword + "%"
+		db = db.Where("articles.title ILIKE ? OR articles.abstract ILIKE ?", keyword, keyword)
+	}
+	return db
+}
+
 type ListArticleQuery struct {
 	Page       int
 	PageSize   int
@@ -29,33 +48,25 @@ type ListArticleQuery struct {
 	Status     domain.ArticleStatus
 }
 
-func (r *ArticleRepo) List(ctx context.Context, query *ListArticleQuery) ([]domain.Article, int64, error) {
-	db := r.db.WithContext(ctx).Model(&domain.Article{})
-
-	if query.Status != 0 {
-		db = db.Where("status = ?", query.Status)
-	}
-	if query.CategoryID != 0 {
-		db = db.Where("category_id = ?", query.CategoryID)
-	}
-	if query.Keyword != "" {
-		keyword := "%" + query.Keyword + "%"
-		db = db.Where("title ILIKE ? OR abstract ILIKE ?", keyword, keyword)
-	}
+func (r *ArticleRepo) List(ctx context.Context, query *ListArticleQuery) ([]ListArticleItem, int64, error) {
+	db := r.buildListQuery(r.db.WithContext(ctx).Model(&domain.Article{}), query)
 
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	var articles []domain.Article
+	var items []ListArticleItem
 	offset := (query.Page - 1) * query.PageSize
-	err := db.Order("created_at DESC").
+	err := r.buildListQuery(r.db.WithContext(ctx).Model(&domain.Article{}), query).
+		Select("articles.*, categories.name as category_name").
+		Joins("LEFT JOIN categories ON categories.id = articles.category_id").
+		Order("articles.created_at DESC").
 		Offset(offset).
 		Limit(query.PageSize).
-		Find(&articles).Error
+		Find(&items).Error
 
-	return articles, total, err
+	return items, total, err
 }
 
 func (r *ArticleRepo) GetByID(ctx context.Context, id uint) (*domain.Article, error) {
