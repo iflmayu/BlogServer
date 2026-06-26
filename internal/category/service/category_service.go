@@ -22,7 +22,8 @@ func NewCategoryService(
 ) *CategoryService {
 	return &CategoryService{
 		categoryRepo: categoryRepo,
-		articleRepo:  articleRepo}
+		articleRepo:  articleRepo,
+	}
 }
 
 type CreateCategoryInput struct {

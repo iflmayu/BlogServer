@@ -17,7 +17,7 @@ func InitLog(env config.Log) *zap.SugaredLogger {
 	//确保日志目录存在
 	if err := os.MkdirAll(env.Dir, os.ModePerm); err != nil {
 		// 如果目录创建失败，直接停止程序，因为没有日志后续很难排查问题
-		panic(fmt.Errorf("无法创建日志目录: " + err.Error()))
+		panic(fmt.Errorf("无法创建日志目录: %v", err))
 	}
 
 	// Encoder 配置
