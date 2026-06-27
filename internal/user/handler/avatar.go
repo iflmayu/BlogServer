@@ -21,10 +21,19 @@ func (h *UserHandler) UpdateAvatar(c *gin.Context) {
 		return
 	}
 
-	// 更新 user.avatar
-	claims, _ := c.Get("claims")
-	myClaims := claims.(*jwt.MyClaims)
+	// 安全取当前登录用户
+	claims, exists := c.Get("claims")
+	if !exists {
+		response.FailWithMsg("请先登录", c)
+		return
+	}
+	myClaims, ok := claims.(*jwt.MyClaims)
+	if !ok {
+		response.FailWithMsg("登录信息无效", c)
+		return
+	}
 
+	// 更新 user.avatar
 	err = h.userService.UpdateAvatar(c.Request.Context(), myClaims.UserID, url)
 	if err != nil {
 		response.FailWithMsg(err.Error(), c)

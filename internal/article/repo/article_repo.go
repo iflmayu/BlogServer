@@ -169,10 +169,14 @@ func (r *ArticleRepo) IncrementViewCount(ctx context.Context, articleID uint) (i
 	return article.ViewCount, nil
 }
 
-// Delete 删除文章及其关联的点赞记录
+// Delete 删除文章及其关联的点赞、评论记录
 func (r *ArticleRepo) Delete(ctx context.Context, articleID uint) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("article_id = ?", articleID).Delete(&domain.ArticleLike{}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("article_id = ?", articleID).Delete(&domain.ArticleComment{}).Error; err != nil {
 			return err
 		}
 

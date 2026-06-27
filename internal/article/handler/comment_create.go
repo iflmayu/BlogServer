@@ -20,7 +20,7 @@ type CreateCommentResponse struct {
 	ArticleID uint   `json:"article_id"`
 	UserID    uint   `json:"user_id"`
 	AtID      uint   `json:"at_id"`
-	Content   string `json:"content"`
+	Content   string `json:"content,max=1000"`
 	Status    string `json:"status"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`

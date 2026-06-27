@@ -40,6 +40,9 @@ func (h *ArticleHandler) ListArticles(c *gin.Context) {
 	if req.PageSize <= 0 {
 		req.PageSize = 9
 	}
+	if req.PageSize > 50 {
+		req.PageSize = 50
+	}
 
 	articles, total, err := h.articleService.List(c.Request.Context(), service.ListArticleInput{
 		Page:       req.Page,

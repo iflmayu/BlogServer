@@ -41,6 +41,9 @@ func (h *ArticleHandler) ListComments(c *gin.Context) {
 	if req.PageSize <= 0 {
 		req.PageSize = 50
 	}
+	if req.PageSize > 100 {
+		req.PageSize = 100
+	}
 
 	comments, total, err := h.commentService.List(c.Request.Context(), service.ListCommentInput{
 		ArticleID: idReq.ID,
